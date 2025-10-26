@@ -12,7 +12,18 @@ function ConvertTo-Image {
     )
     process {
         try {
-            if ($PSVersionTable.Platform -eq 'Unix') {
+            $Plataform = if ($PSVersionTable.PSEdition -eq 'Core') {
+                if ($IsLinux -or $IsMacOS) {
+                    'Unix'
+                }
+                else {
+                    'Windows'
+                }
+            }
+            else {
+                'Windows'
+            }
+            if ($Plataform -eq 'Unix') {
                 $memoryStream = [System.IO.MemoryStream]::new($Bytes)
                 [SixLabors.ImageSharp.Image] $image = [SixLabors.ImageSharp.Image]::Load($memoryStream)
                 Write-Output -InputObject $image

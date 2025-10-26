@@ -12,7 +12,18 @@ function Get-ImageMimeType {
     )
     process {
         # Check if running on Unix and ImageSharp is available
-        if ($PSVersionTable.Platform -eq 'Unix') {
+        $Plataform = if ($PSVersionTable.PSEdition -eq 'Core') {
+            if ($IsLinux -or $IsMacOS) {
+                'Unix'
+            }
+            else {
+                'Windows'
+            }
+        }
+        else {
+            'Windows'
+        }
+        if ($Plataform -eq 'Unix') {
             # Use ImageSharp on Unix systems
             $format = $Image.Metadata.DecodedImageFormat
             if ($format) {
