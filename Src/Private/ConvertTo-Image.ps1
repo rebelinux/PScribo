@@ -1,32 +1,33 @@
-function ConvertTo-Image
-{
-<#
+function ConvertTo-Image {
+    <#
     .SYNOPSIS
         Creates an image from a byte[]
 #>
     [CmdletBinding()]
-    [OutputType([System.Drawing.Image])]
+    [OutputType([System.Drawing.Image], [SixLabors.ImageSharp.Image])]
     param
     (
         [Parameter(Mandatory, ValueFromPipeline)]
         [System.Byte[]] $Bytes
     )
-    process
-    {
-        try
-        {
-            [System.IO.MemoryStream] $memoryStream = New-Object -TypeName 'System.IO.MemoryStream' -ArgumentList @(,$Bytes)
-            [System.Drawing.Image] $image = [System.Drawing.Image]::FromStream($memoryStream)
-            Write-Output -InputObject $image
+    process {
+        try {
+            if ($PSVersionTable.Platform -eq 'Unix') {
+                $memoryStream = [System.IO.MemoryStream]::new($Bytes)
+                [SixLabors.ImageSharp.Image] $image = [SixLabors.ImageSharp.Image]::Load($memoryStream)
+                Write-Output -InputObject $image
+            }
+            else {
+                [System.IO.MemoryStream] $memoryStream = New-Object -TypeName 'System.IO.MemoryStream' -ArgumentList @(, $Bytes)
+                [System.Drawing.Image] $image = [System.Drawing.Image]::FromStream($memoryStream)
+                Write-Output -InputObject $image
+            }
         }
-        catch
-        {
+        catch {
             $_
         }
-        finally
-        {
-            if ($null -ne $memoryStream)
-            {
+        finally {
+            if ($null -ne $memoryStream) {
                 $memoryStream.Close()
             }
         }
