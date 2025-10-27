@@ -68,7 +68,6 @@ function Get-ImageMimeType {
                 return 'image/exif'
             }
         }
-        
         return 'image/unknown'
     }
 }
