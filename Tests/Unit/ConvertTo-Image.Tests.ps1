@@ -8,8 +8,20 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
     $testRoot = Split-Path -Path $PSScriptRoot -Parent
 
     Describe -Name 'ConvertTo-Image' -Fixture {
+        # Check if running on Unix and ImageSharp is available
+        $Platform = if ($PSVersionTable.PSEdition -eq 'Core') {
+            if ($IsLinux -or $IsMacOS) {
+                'Unix'
+            }
+            else {
+                'Windows'
+            }
+        }
+        else {
+            'Windows'
+        }
 
-        It "returns 'System.Drawing.Image' type" -Skip:$($PSVersionTable.Platform -ne 'Unix') {
+        It "returns 'System.Drawing.Image' type" -Skip:$($Platform -eq 'Unix') {
             $testPath = Join-Path -Path $testRoot -ChildPath 'TestImage.jpg'
             $testUri = Resolve-ImageUri -Path $testPath
             $testBytes = Get-UriBytes -Uri $testUri
@@ -18,7 +30,7 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
             $result -is [System.Drawing.Image] | Should Be $true
         }
-        It "returns 'SixLabors.ImageSharp.Image' type" -Skip:$($PSVersionTable.Platform -eq 'Unix') {
+        It "returns 'SixLabors.ImageSharp.Image' type" -Skip:$($Platform -ne 'Unix') {
             $testPath = Join-Path -Path $testRoot -ChildPath 'TestImage.jpg'
             $testUri = Resolve-ImageUri -Path $testPath
             $testBytes = Get-UriBytes -Uri $testUri

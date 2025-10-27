@@ -2,7 +2,7 @@ function Get-ImageMimeType {
     <#
     .SYNOPSIS
         Returns an image's Mime type
-#>
+    #>
     [CmdletBinding()]
     [OutputType([System.String])]
     param
@@ -12,7 +12,7 @@ function Get-ImageMimeType {
     )
     process {
         # Check if running on Unix and ImageSharp is available
-        $Plataform = if ($PSVersionTable.PSEdition -eq 'Core') {
+        $Platform = if ($PSVersionTable.PSEdition -eq 'Core') {
             if ($IsLinux -or $IsMacOS) {
                 'Unix'
             }
@@ -23,7 +23,7 @@ function Get-ImageMimeType {
         else {
             'Windows'
         }
-        if ($Plataform -eq 'Unix') {
+        if ($Platform -eq 'Unix') {
             # Use ImageSharp on Unix systems
             $format = $Image.Metadata.DecodedImageFormat
             if ($format) {
