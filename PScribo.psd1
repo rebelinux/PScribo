@@ -1,13 +1,13 @@
 @{
-    RootModule         = 'PScribo.psm1'
-    ModuleVersion      = '0.11.1'
-    GUID               = '058eab05-b7bc-4f8b-a2d1-737cc664b12b'
-    Author             = 'Iain Brighton'
-    CompanyName        = 'Virtual Engine'
-    Copyright          = '(c) 2025 Iain Brighton. All rights reserved.'
-    Description        = 'PScribo documentation Powershell module/framework.'
-    PowerShellVersion  = '3.0'
-    FunctionsToExport  = @(
+    RootModule        = 'PScribo.psm1'
+    ModuleVersion     = '0.11.1'
+    GUID              = '058eab05-b7bc-4f8b-a2d1-737cc664b12b'
+    Author            = 'Iain Brighton'
+    CompanyName       = 'Virtual Engine'
+    Copyright         = '(c) 2025 Iain Brighton. All rights reserved.'
+    Description       = 'PScribo documentation Powershell module/framework.'
+    PowerShellVersion = '3.0'
+    FunctionsToExport = @(
         'BlankLine',
         'Document',
         'DocumentOption',
@@ -31,11 +31,10 @@
         'Write-PScriboMessage',
         'Get-WordListLevel'
     )
-    AliasesToExport    = @(
+    AliasesToExport   = @(
         'GlobalOption'
     )
-    RequiredAssemblies = @('Src\Bin\Assemblies\SixLabors.ImageSharp.dll')
-    PrivateData        = @{
+    PrivateData       = @{
         PSData = @{
             Tags       = @('Powershell', 'PScribo', 'Documentation', 'Framework', 'VirtualEngine', 'Windows', 'Linux', 'MacOS', 'PSEdition_Desktop', 'PSEdition_Core', 'Word', 'Html')
             LicenseUri = 'https://raw.githubusercontent.com/iainbrighton/PScribo/master/LICENSE'
