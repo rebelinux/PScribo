@@ -20,6 +20,15 @@ function Link
         ## Hyperlink URI/URL target
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
+        [ValidateScript({
+            # Ensure that the provided value is a syntactically valid URI
+            $null = $null
+            if (-not [System.Uri]::TryCreate($_, [System.UriKind]::Absolute, [ref] $null))
+            {
+                throw "The value for -Uri ('$_') is not a valid URI."
+            }
+            $true
+        })]
         [System.String] $Uri,
 
         ## Open link in a new window/tab (Html and Word output)
