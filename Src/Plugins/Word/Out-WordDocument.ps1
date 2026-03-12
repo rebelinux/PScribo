@@ -182,8 +182,30 @@ function Out-WordDocument
             $hyperlinkDocumentUri = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink'
             foreach ($link in (Get-PScriboLink -Section $Document.Sections))
             {
-                $linkUri = New-Object -TypeName 'System.Uri' -ArgumentList ($link.Uri)
-                [ref] $null = $documentPart.CreateRelationship($linkUri, [System.IO.Packaging.TargetMode]::External, $hyperlinkDocumentUri, $link.Name)
+                $linkUri = $null
+                if (-not [System.Uri]::TryCreate($link.Uri, [System.UriKind]::Absolute, [ref] $linkUri))
+                {
+                    throw (New-Object System.ArgumentException (
+                        "Invalid hyperlink URI '{0}' for link '{1}'." -f $link.Uri, $link.Name
+                    ))
+                }
+
+                try
+                {
+                    [ref] $null = $documentPart.CreateRelationship(
+                        $linkUri,
+                        [System.IO.Packaging.TargetMode]::External,
+                        $hyperlinkDocumentUri,
+                        $link.Name
+                    )
+                }
+                catch
+                {
+                    # Re-throw with clearer context including the link name and URI
+                    $message = "Failed to create hyperlink relationship for link '{0}' with URI '{1}': {2}" -f `
+                        $link.Name, $link.Uri, $_.Exception.Message
+                    throw (New-Object System.Exception($message, $_.Exception))
+                }
             }
         }
 
