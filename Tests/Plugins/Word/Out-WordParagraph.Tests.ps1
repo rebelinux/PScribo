@@ -282,5 +282,38 @@ InModuleScope 'PScribo' {
             $testDocument.DocumentElement.OuterXml | Should Match $expected
         }
 
+        It 'outputs space run after hyperlink when mixed with text "[..]</w:hyperlink><w:r>[..]<w:t [..]> </w:t>[..]" (by default)' {
+            $document = Document -Name 'TestDocument' {
+                Paragraph {
+                    Link -Text 'Click Here' -Uri 'https://example.com'
+                    Text 'for more info'
+                }
+            }
+
+            $testDocument = Get-WordDocument -Document $document
+
+            $expected = GetMatch '[..]</w:hyperlink><w:r>[..]<w:t [..]> </w:t>[..]'
+            $testDocument.DocumentElement.OuterXml | Should Match $expected
+        }
+
+        It 'does not output space run after hyperlink when -NoSpace is specified "[..]</w:hyperlink><w:r>[..]" (missing space run)' {
+            $document = Document -Name 'TestDocument' {
+                Paragraph {
+                    Link -Text 'Click' -Uri 'https://example.com' -NoSpace
+                    Text 'HereForMoreInfo'
+                }
+            }
+
+            $testDocument = Get-WordDocument -Document $document
+
+            ## Space run should not appear between hyperlink and next text run
+            $xmlOut = $testDocument.DocumentElement.OuterXml
+            ## Verify hyperlink is present
+            $xmlOut | Should Match (GetMatch '[..]<w:hyperlink[..]>[..]</w:hyperlink>[..]')
+            ## Verify the text "Click" and "HereForMoreInfo" are both in the output
+            $xmlOut | Should Match (GetMatch '[..]<w:t>Click</w:t>[..]')
+            $xmlOut | Should Match (GetMatch '[..]<w:t>HereForMoreInfo</w:t>[..]')
+        }
+
     }
 }

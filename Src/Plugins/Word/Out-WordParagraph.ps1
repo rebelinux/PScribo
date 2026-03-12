@@ -67,12 +67,35 @@ function Out-WordParagraph
                 $rStyle = $rPr.AppendChild($XmlDocument.CreateElement('w', 'rStyle', $xmlns))
                 [ref] $null = $rStyle.SetAttribute('val', $xmlns, 'Hyperlink')
 
-                $t = $r.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
-                if ($paragraphRun.Text -ne $paragraphRun.Text.Trim())
+                ## Create a separate text block for each line/break
+                $lines = $paragraphRun.Text -split '\r\n?|\n'
+                for ($l = 0; $l -lt $lines.Count; $l++)
                 {
-                    [ref] $null = $t.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
+                    $line = $lines[$l]
+                    $t = $r.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
+                    if ($line -ne $line.Trim())
+                    {
+                        ## Only preserve space if there is a preceding or trailing space
+                        [ref] $null = $t.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
+                    }
+                    [ref] $null = $t.AppendChild($XmlDocument.CreateTextNode($line))
+
+                    if ($l -lt ($lines.Count - 1))
+                    {
+                        ## Don't add a line break to the last line/break
+                        [ref] $null = $r.AppendChild($XmlDocument.CreateElement('w', 'br', $xmlns))
+                    }
                 }
-                [ref] $null = $t.AppendChild($XmlDocument.CreateTextNode($paragraphRun.Text))
+
+                ## Add an explicit space run after the hyperlink when not at end and NoSpace is not set
+                if (($paragraphRun.IsParagraphRunEnd -eq $false) -and ($paragraphRun.NoSpace -eq $false))
+                {
+                    $spaceRun = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
+                    [ref] $null = $spaceRun.AppendChild($XmlDocument.CreateElement('w', 'rPr', $xmlns))
+                    $spaceT = $spaceRun.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
+                    [ref] $null = $spaceT.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
+                    [ref] $null = $spaceT.AppendChild($XmlDocument.CreateTextNode(' '))
+                }
             }
             else
             {
