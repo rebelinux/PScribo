@@ -36,6 +36,10 @@ function New-PScriboImage
         [ValidateSet('Left','Center','Right')]
         [System.String] $Align = 'Left',
 
+        [Parameter()]
+        [ValidateSet('Inline','Square','Tight','TopBottom','None','Through')]
+        [System.String] $Wrap = 'Inline',
+
         [Parameter(Mandatory, ParameterSetName = 'Base64Size')]
         [Parameter(Mandatory, ParameterSetName = 'Base64Percent')]
         [Parameter(ParameterSetName = 'UriSize')]
@@ -81,6 +85,7 @@ function New-PScriboImage
             Uri         = $Uri;
             Name        = 'Image{0}' -f $imageNumber;
             Align       = $Align;
+            Wrap        = $Wrap;
             MIMEType    = Get-ImageMimeType -Image $image
             WidthEm     = ConvertTo-Em -Pixel $Width;
             HeightEm    = ConvertTo-Em -Pixel $Height;

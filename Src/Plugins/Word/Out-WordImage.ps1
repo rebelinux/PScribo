@@ -34,32 +34,103 @@ function Out-WordImage
         $r = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlnsMain))
         [ref] $null = $r.AppendChild($XmlDocument.CreateElement('w', 'rPr', $xmlnsMain))
         $drawing = $r.AppendChild($XmlDocument.CreateElement('w', 'drawing', $xmlnsMain))
-        $inline = $drawing.AppendChild($XmlDocument.CreateElement('wp', 'inline', $xmlnswpDrawingWordProcessing))
-        [ref] $null = $inline.SetAttribute('distT', '0')
-        [ref] $null = $inline.SetAttribute('distB', '0')
-        [ref] $null = $inline.SetAttribute('distL', '0')
-        [ref] $null = $inline.SetAttribute('distR', '0')
 
-        $extent = $inline.AppendChild($XmlDocument.CreateElement('wp', 'extent', $xmlnswpDrawingWordProcessing))
+        $wrap = if ($Image.PSObject.Properties['Wrap']) { $Image.Wrap } else { 'Inline' }
+
+        if ($wrap -eq 'Inline')
+        {
+            $container = $drawing.AppendChild($XmlDocument.CreateElement('wp', 'inline', $xmlnswpDrawingWordProcessing))
+            [ref] $null = $container.SetAttribute('distT', '0')
+            [ref] $null = $container.SetAttribute('distB', '0')
+            [ref] $null = $container.SetAttribute('distL', '0')
+            [ref] $null = $container.SetAttribute('distR', '0')
+        }
+        else
+        {
+            $container = $drawing.AppendChild($XmlDocument.CreateElement('wp', 'anchor', $xmlnswpDrawingWordProcessing))
+            [ref] $null = $container.SetAttribute('distT', '0')
+            [ref] $null = $container.SetAttribute('distB', '0')
+            [ref] $null = $container.SetAttribute('distL', '114300')
+            [ref] $null = $container.SetAttribute('distR', '114300')
+            [ref] $null = $container.SetAttribute('simplePos', '0')
+            ## 251658240 = 0x0F000000, standard default z-order for floating images in Word
+            [ref] $null = $container.SetAttribute('relativeHeight', '251658240')
+            [ref] $null = $container.SetAttribute('behindDoc', '0')
+            [ref] $null = $container.SetAttribute('locked', '0')
+            [ref] $null = $container.SetAttribute('layoutInCell', '1')
+            [ref] $null = $container.SetAttribute('allowOverlap', '1')
+
+            $simplePos = $container.AppendChild($XmlDocument.CreateElement('wp', 'simplePos', $xmlnswpDrawingWordProcessing))
+            [ref] $null = $simplePos.SetAttribute('x', '0')
+            [ref] $null = $simplePos.SetAttribute('y', '0')
+
+            $positionH = $container.AppendChild($XmlDocument.CreateElement('wp', 'positionH', $xmlnswpDrawingWordProcessing))
+            [ref] $null = $positionH.SetAttribute('relativeFrom', 'column')
+            $posOffsetH = $positionH.AppendChild($XmlDocument.CreateElement('wp', 'posOffset', $xmlnswpDrawingWordProcessing))
+            [ref] $null = $posOffsetH.AppendChild($XmlDocument.CreateTextNode('0'))
+
+            $positionV = $container.AppendChild($XmlDocument.CreateElement('wp', 'positionV', $xmlnswpDrawingWordProcessing))
+            [ref] $null = $positionV.SetAttribute('relativeFrom', 'paragraph')
+            $posOffsetV = $positionV.AppendChild($XmlDocument.CreateElement('wp', 'posOffset', $xmlnswpDrawingWordProcessing))
+            [ref] $null = $posOffsetV.AppendChild($XmlDocument.CreateTextNode('0'))
+        }
+
+        $extent = $container.AppendChild($XmlDocument.CreateElement('wp', 'extent', $xmlnswpDrawingWordProcessing))
         [ref] $null = $extent.SetAttribute('cx', $Image.WidthEm)
         [ref] $null = $extent.SetAttribute('cy', $Image.HeightEm)
 
-        $effectExtent = $inline.AppendChild($XmlDocument.CreateElement('wp', 'effectExtent', $xmlnswpDrawingWordProcessing))
+        $effectExtent = $container.AppendChild($XmlDocument.CreateElement('wp', 'effectExtent', $xmlnswpDrawingWordProcessing))
         [ref] $null = $effectExtent.SetAttribute('l', '0')
         [ref] $null = $effectExtent.SetAttribute('t', '0')
         [ref] $null = $effectExtent.SetAttribute('r', '0')
         [ref] $null = $effectExtent.SetAttribute('b', '0')
 
-        $docPr = $inline.AppendChild($XmlDocument.CreateElement('wp', 'docPr', $xmlnswpDrawingWordProcessing))
+        ## Add wrap element for anchor-based images
+        switch ($wrap)
+        {
+            'Square'
+            {
+                $wrapElement = $container.AppendChild($XmlDocument.CreateElement('wp', 'wrapSquare', $xmlnswpDrawingWordProcessing))
+                [ref] $null = $wrapElement.SetAttribute('wrapText', 'bothSides')
+            }
+            { $_ -in 'Tight', 'Through' }
+            {
+                $wrapTagName = if ($wrap -eq 'Tight') { 'wrapTight' } else { 'wrapThrough' }
+                $wrapElement = $container.AppendChild($XmlDocument.CreateElement('wp', $wrapTagName, $xmlnswpDrawingWordProcessing))
+                [ref] $null = $wrapElement.SetAttribute('wrapText', 'bothSides')
+                ## Rectangle polygon in Word's EMU-based drawing coordinates (21600 = full extent)
+                $wrapPolygon = $wrapElement.AppendChild($XmlDocument.CreateElement('wp', 'wrapPolygon', $xmlnswpDrawingWordProcessing))
+                [ref] $null = $wrapPolygon.SetAttribute('edited', '0')
+                $start = $wrapPolygon.AppendChild($XmlDocument.CreateElement('wp', 'start', $xmlnswpDrawingWordProcessing))
+                [ref] $null = $start.SetAttribute('x', '0')
+                [ref] $null = $start.SetAttribute('y', '0')
+                foreach ($point in @(@(0,21600),@(21600,21600),@(21600,0),@(0,0)))
+                {
+                    $lineTo = $wrapPolygon.AppendChild($XmlDocument.CreateElement('wp', 'lineTo', $xmlnswpDrawingWordProcessing))
+                    [ref] $null = $lineTo.SetAttribute('x', $point[0])
+                    [ref] $null = $lineTo.SetAttribute('y', $point[1])
+                }
+            }
+            'TopBottom'
+            {
+                [ref] $null = $container.AppendChild($XmlDocument.CreateElement('wp', 'wrapTopAndBottom', $xmlnswpDrawingWordProcessing))
+            }
+            'None'
+            {
+                [ref] $null = $container.AppendChild($XmlDocument.CreateElement('wp', 'wrapNone', $xmlnswpDrawingWordProcessing))
+            }
+        }
+
+        $docPr = $container.AppendChild($XmlDocument.CreateElement('wp', 'docPr', $xmlnswpDrawingWordProcessing))
         [ref] $null = $docPr.SetAttribute('id', $Image.ImageNumber)
         [ref] $null = $docPr.SetAttribute('name', $Image.Name)
         [ref] $null = $docPr.SetAttribute('descr', $Image.Name)
 
-        $cNvGraphicFramePr = $inline.AppendChild($XmlDocument.CreateElement('wp', 'cNvGraphicFramePr', $xmlnswpDrawingWordProcessing))
+        $cNvGraphicFramePr = $container.AppendChild($XmlDocument.CreateElement('wp', 'cNvGraphicFramePr', $xmlnswpDrawingWordProcessing))
         $graphicFrameLocks = $cNvGraphicFramePr.AppendChild($XmlDocument.CreateElement('a', 'graphicFrameLocks', $xmlnsDrawingMain))
         [ref] $null = $graphicFrameLocks.SetAttribute('noChangeAspect', '1')
 
-        $graphic = $inline.AppendChild($XmlDocument.CreateElement('a', 'graphic', $xmlnsDrawingMain))
+        $graphic = $container.AppendChild($XmlDocument.CreateElement('a', 'graphic', $xmlnsDrawingMain))
         $graphicData = $graphic.AppendChild($XmlDocument.CreateElement('a', 'graphicData', $xmlnsDrawingMain))
         [ref] $null = $graphicData.SetAttribute('uri', 'http://schemas.openxmlformats.org/drawingml/2006/picture')
 

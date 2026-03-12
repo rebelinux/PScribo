@@ -45,6 +45,11 @@ function Image {
         [ValidateSet('Left','Center','Right')]
         [System.String] $Align = 'Left',
 
+        ## Image text wrapping style
+        [Parameter()]
+        [ValidateSet('Inline','Square','Tight','TopBottom','None','Through')]
+        [System.String] $Wrap = 'Inline',
+
         ## Accessibility image description
         [Parameter(Mandatory, ParameterSetName = 'Base64Size')]
         [Parameter(Mandatory, ParameterSetName = 'Base64Percent')]
