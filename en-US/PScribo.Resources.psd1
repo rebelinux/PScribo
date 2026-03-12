@@ -14,6 +14,7 @@ OpenPackageError                 = Error opening package '{0}'. Ensure the file 
 IncorrectCharsInPathError        = The incorrect char found in the Path.
 HeaderFooterDocumentRootError    = The 'Header' and 'Footer' keywords can only be defined in the document root section.
 ParagraphRunRootError            = The 'Text' keyword can only be defined within a 'Paragraph' section.
+LinkRunRootError                 = The 'Link' keyword can only be defined within a 'Paragraph' section.
 ListRootError                    = The 'List' keyword can only be defined within a 'Paragraph' or 'Section' block.
 ItemRootError                    = The 'Item' keyword can only be defined within a 'List' section.
 InvalidCustomNumberStyleError    = The custom number style '{0}' is invalid and must contain at least one '%'.
@@ -85,6 +86,7 @@ ProcessingFooterCompleted        = Processing document footer completed.
 ProcessingParagraphRunsStarted   = Processing paragraph run(s) started.
 ProcessingParagraphRunsCompleted = Processing paragraph run(s) completed.
 ProcessingParagraphRun           = Processing paragraph run '{0}'.
+ProcessingLink                   = Processing link '{0}'.
 ProcessingList                   = Processing list '{0}'.
 ProcessingNumberStyle            = Setting number style '{0}'.
 '@;

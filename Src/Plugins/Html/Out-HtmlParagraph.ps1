@@ -45,35 +45,52 @@ function Out-HtmlParagraph
 
         foreach ($paragraphRun in $Paragraph.Sections)
         {
-            if (($paragraphRun.HasStyle -eq $true) -and ($paragraphRun.HasInlineStyle -eq $true))
+            if ($paragraphRun.Type -eq 'PScribo.Link')
             {
-                $inlineStyle = Get-HtmlParagraphInlineStyle -Paragraph $paragraphRun -NoIndent
-                [ref] $null = $paragraphBuilder.AppendFormat('<span class="{0}" style="{1}">', $paragraphRun.Style, $inlineStyle)
+                $encodedUri = [System.Net.WebUtility]::HtmlEncode($paragraphRun.Uri)
+                $text = Resolve-PScriboToken -InputObject $paragraphRun.Text
+                $encodedText = [System.Net.WebUtility]::HtmlEncode($text)
+                if ($paragraphRun.NewWindow)
+                {
+                    [ref] $null = $paragraphBuilder.AppendFormat('<a href="{0}" target="_blank" rel="noopener noreferrer">{1}</a>', $encodedUri, $encodedText)
+                }
+                else
+                {
+                    [ref] $null = $paragraphBuilder.AppendFormat('<a href="{0}">{1}</a>', $encodedUri, $encodedText)
+                }
             }
-            elseif ($paragraphRun.HasStyle)
+            else
             {
-                [ref] $null = $paragraphBuilder.AppendFormat('<span class="{0}">', $paragraphRun.Style)
-            }
-            elseif ($paragraphRun.HasInlineStyle)
-            {
-                $inlineStyle = Get-HtmlParagraphInlineStyle -Paragraph $paragraphRun -NoIndent
-                [ref] $null = $paragraphBuilder.AppendFormat('<span style="{0}">', $inlineStyle)
-            }
+                if (($paragraphRun.HasStyle -eq $true) -and ($paragraphRun.HasInlineStyle -eq $true))
+                {
+                    $inlineStyle = Get-HtmlParagraphInlineStyle -Paragraph $paragraphRun -NoIndent
+                    [ref] $null = $paragraphBuilder.AppendFormat('<span class="{0}" style="{1}">', $paragraphRun.Style, $inlineStyle)
+                }
+                elseif ($paragraphRun.HasStyle)
+                {
+                    [ref] $null = $paragraphBuilder.AppendFormat('<span class="{0}">', $paragraphRun.Style)
+                }
+                elseif ($paragraphRun.HasInlineStyle)
+                {
+                    $inlineStyle = Get-HtmlParagraphInlineStyle -Paragraph $paragraphRun -NoIndent
+                    [ref] $null = $paragraphBuilder.AppendFormat('<span style="{0}">', $inlineStyle)
+                }
 
-            $text = Resolve-PScriboToken -InputObject $paragraphRun.Text
-            $encodedText = [System.Net.WebUtility]::HtmlEncode($text)
-            $encodedText = $encodedText.Replace([System.Environment]::NewLine, '<br />')
-            [ref] $null = $paragraphBuilder.Append($encodedText)
+                $text = Resolve-PScriboToken -InputObject $paragraphRun.Text
+                $encodedText = [System.Net.WebUtility]::HtmlEncode($text)
+                $encodedText = $encodedText.Replace([System.Environment]::NewLine, '<br />')
+                [ref] $null = $paragraphBuilder.Append($encodedText)
+
+                if ($paragraphRun.HasStyle -or $paragraphRun.HasInlineStyle)
+                {
+                    [ref] $null = $paragraphBuilder.Append('</span>')
+                }
+            }
 
             if (($paragraphRun.IsParagraphRunEnd -eq $false) -and
                 ($paragraphRun.NoSpace -eq $false))
             {
                 [ref] $null = $paragraphBuilder.Append(' ')
-            }
-
-            if ($paragraphRun.HasStyle -or $paragraphRun.HasInlineStyle)
-            {
-                [ref] $null = $paragraphBuilder.Append('</span>')
             }
         }
 
