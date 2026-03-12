@@ -68,6 +68,29 @@ InModuleScope 'PScribo' {
 
                 $p | Should BeExactly $expected
             }
+
+            It 'renders a link as text (uri)' {
+                $testParagraph = {
+                    Link -Text 'Click Here' -Uri 'https://example.com'
+                }
+                $expected = 'Click Here (https://example.com){0}' -f [System.Environment]::NewLine
+
+                $p = Paragraph $testParagraph | Out-TextParagraph
+
+                $p | Should BeExactly $expected
+            }
+
+            It 'renders a link mixed with text runs' {
+                $testParagraph = {
+                    Text 'Visit'
+                    Link -Text 'here' -Uri 'https://example.com'
+                }
+                $expected = 'Visit here (https://example.com){0}' -f [System.Environment]::NewLine
+
+                $p = Paragraph $testParagraph | Out-TextParagraph
+
+                $p | Should BeExactly $expected
+            }
         }
 
         Context 'By named -Paragraph parameter' {

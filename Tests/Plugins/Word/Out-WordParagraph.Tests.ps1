@@ -230,5 +230,57 @@ InModuleScope 'PScribo' {
             $testDocument.DocumentElement.OuterXml  | Should Match $expected;
         }
 
+        It 'outputs hyperlink element "[..]<w:hyperlink r:id="[..]"[..]>[..]</w:hyperlink>[..]"' {
+            $document = Document -Name 'TestDocument' {
+                Paragraph {
+                    Link -Text 'Click Here' -Uri 'https://example.com'
+                }
+            }
+
+            $testDocument = Get-WordDocument -Document $document
+
+            $expected = GetMatch '[..]<w:hyperlink r:id="[..]"[..]>[..]</w:hyperlink>[..]'
+            $testDocument.DocumentElement.OuterXml | Should Match $expected
+        }
+
+        It 'outputs hyperlink run style "[..]<w:rStyle w:val="Hyperlink" />[..]"' {
+            $document = Document -Name 'TestDocument' {
+                Paragraph {
+                    Link -Text 'Click Here' -Uri 'https://example.com'
+                }
+            }
+
+            $testDocument = Get-WordDocument -Document $document
+
+            $expected = GetMatch '[..]<w:rStyle w:val="Hyperlink" />[..]'
+            $testDocument.DocumentElement.OuterXml | Should Match $expected
+        }
+
+        It 'outputs hyperlink text "[..]<w:t>Click Here</w:t>[..]"' {
+            $document = Document -Name 'TestDocument' {
+                Paragraph {
+                    Link -Text 'Click Here' -Uri 'https://example.com'
+                }
+            }
+
+            $testDocument = Get-WordDocument -Document $document
+
+            $expected = GetMatch '[..]<w:t>Click Here</w:t>[..]'
+            $testDocument.DocumentElement.OuterXml | Should Match $expected
+        }
+
+        It 'outputs hyperlink tgtFrame when NewWindow is specified "[..]w:tgtFrame="_blank"[..]"' {
+            $document = Document -Name 'TestDocument' {
+                Paragraph {
+                    Link -Text 'Click Here' -Uri 'https://example.com' -NewWindow
+                }
+            }
+
+            $testDocument = Get-WordDocument -Document $document
+
+            $expected = GetMatch '[..]w:tgtFrame="_blank"[..]'
+            $testDocument.DocumentElement.OuterXml | Should Match $expected
+        }
+
     }
 }

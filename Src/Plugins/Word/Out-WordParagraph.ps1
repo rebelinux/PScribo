@@ -51,69 +51,95 @@ function Out-WordParagraph
 
         foreach ($paragraphRun in $Paragraph.Sections)
         {
-            $rPr = Get-WordParagraphRunPr -ParagraphRun $paragraphRun -XmlDocument $XmlDocument
-            $noSpace = ($paragraphRun.IsParagraphRunEnd -eq $true) -or ($paragraphRun.NoSpace -eq $true)
-            $runs = Get-WordParagraphRun -Text $paragraphRun.Text -NoSpace:$noSpace
-
-            foreach ($run in $runs)
+            if ($paragraphRun.Type -eq 'PScribo.Link')
             {
-                if (-not [System.String]::IsNullOrEmpty($run))
+                $xmlnsRelationships = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+                $hyperlink = $p.AppendChild($XmlDocument.CreateElement('w', 'hyperlink', $xmlns))
+                [ref] $null = $hyperlink.SetAttribute('id', $xmlnsRelationships, $paragraphRun.Name)
+                [ref] $null = $hyperlink.SetAttribute('history', $xmlns, '1')
+                if ($paragraphRun.NewWindow)
                 {
-                    if ($run -imatch '<!#(TOTALPAGES|PAGENUMBER)#!>')
+                    [ref] $null = $hyperlink.SetAttribute('tgtFrame', $xmlns, '_blank')
+                }
+
+                $r = $hyperlink.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
+                $rPr = $r.AppendChild($XmlDocument.CreateElement('w', 'rPr', $xmlns))
+                $rStyle = $rPr.AppendChild($XmlDocument.CreateElement('w', 'rStyle', $xmlns))
+                [ref] $null = $rStyle.SetAttribute('val', $xmlns, 'Hyperlink')
+
+                $t = $r.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
+                if ($paragraphRun.Text -ne $paragraphRun.Text.Trim())
+                {
+                    [ref] $null = $t.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
+                }
+                [ref] $null = $t.AppendChild($XmlDocument.CreateTextNode($paragraphRun.Text))
+            }
+            else
+            {
+                $rPr = Get-WordParagraphRunPr -ParagraphRun $paragraphRun -XmlDocument $XmlDocument
+                $noSpace = ($paragraphRun.IsParagraphRunEnd -eq $true) -or ($paragraphRun.NoSpace -eq $true)
+                $runs = Get-WordParagraphRun -Text $paragraphRun.Text -NoSpace:$noSpace
+
+                foreach ($run in $runs)
+                {
+                    if (-not [System.String]::IsNullOrEmpty($run))
                     {
-                        $r1 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
-                        $fldChar1 = $r1.AppendChild($XmlDocument.CreateElement('w', 'fldChar', $xmlns))
-                        [ref] $null = $fldChar1.SetAttribute('fldCharType', $xmlns, 'begin')
-
-                        $r2 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
-                        [ref] $null = $r2.AppendChild($rPr)
-                        $instrText = $r2.AppendChild($XmlDocument.CreateElement('w', 'instrText', $xmlns))
-                        [ref] $null = $instrText.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
-
-                        if ($run -match '<!#PAGENUMBER#!>')
+                        if ($run -imatch '<!#(TOTALPAGES|PAGENUMBER)#!>')
                         {
-                            [ref] $null = $instrText.AppendChild($XmlDocument.CreateTextNode(' PAGE   \* MERGEFORMAT '))
-                        }
-                        elseif ($run -match '<!#TOTALPAGES#!>')
-                        {
-                            [ref] $null = $instrText.AppendChild($XmlDocument.CreateTextNode(' NUMPAGES   \* MERGEFORMAT '))
-                        }
+                            $r1 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
+                            $fldChar1 = $r1.AppendChild($XmlDocument.CreateElement('w', 'fldChar', $xmlns))
+                            [ref] $null = $fldChar1.SetAttribute('fldCharType', $xmlns, 'begin')
 
-                        $r3 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
-                        $fldChar2 = $r3.AppendChild($XmlDocument.CreateElement('w', 'fldChar', $xmlns))
-                        [ref] $null = $fldChar2.SetAttribute('fldCharType', $xmlns, 'separate')
+                            $r2 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
+                            [ref] $null = $r2.AppendChild($rPr)
+                            $instrText = $r2.AppendChild($XmlDocument.CreateElement('w', 'instrText', $xmlns))
+                            [ref] $null = $instrText.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
 
-                        $r4 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
-                        [ref] $null = $r4.AppendChild($rPr)
-                        $t2 = $r4.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
-                        [ref] $null = $t2.AppendChild($XmlDocument.CreateTextNode('1'))
-
-                        $r5 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
-                        $fldChar3 = $r5.AppendChild($XmlDocument.CreateElement('w', 'fldChar', $xmlns))
-                        [ref] $null = $fldChar3.SetAttribute('fldCharType', $xmlns, 'end')
-                    }
-                    else
-                    {
-                        $r = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
-                        [ref] $null = $r.AppendChild($rPr)
-
-                        ## Create a separate text block for each line/break
-                        $lines = $run -split '\r\n?|\n'
-                        for ($l = 0; $l -lt $lines.Count; $l++)
-                        {
-                            $line = $lines[$l]
-                            $t = $r.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
-                            if ($line -ne $line.Trim())
+                            if ($run -match '<!#PAGENUMBER#!>')
                             {
-                                ## Only preserve space if there is a preceeding or trailing space
-                                [ref] $null = $t.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
+                                [ref] $null = $instrText.AppendChild($XmlDocument.CreateTextNode(' PAGE   \* MERGEFORMAT '))
                             }
-                            [ref] $null = $t.AppendChild($XmlDocument.CreateTextNode($line))
-
-                            if ($l -lt ($lines.Count - 1))
+                            elseif ($run -match '<!#TOTALPAGES#!>')
                             {
-                                ## Don't add a line break to the last line/break
-                                [ref] $null = $r.AppendChild($XmlDocument.CreateElement('w', 'br', $xmlns))
+                                [ref] $null = $instrText.AppendChild($XmlDocument.CreateTextNode(' NUMPAGES   \* MERGEFORMAT '))
+                            }
+
+                            $r3 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
+                            $fldChar2 = $r3.AppendChild($XmlDocument.CreateElement('w', 'fldChar', $xmlns))
+                            [ref] $null = $fldChar2.SetAttribute('fldCharType', $xmlns, 'separate')
+
+                            $r4 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
+                            [ref] $null = $r4.AppendChild($rPr)
+                            $t2 = $r4.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
+                            [ref] $null = $t2.AppendChild($XmlDocument.CreateTextNode('1'))
+
+                            $r5 = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
+                            $fldChar3 = $r5.AppendChild($XmlDocument.CreateElement('w', 'fldChar', $xmlns))
+                            [ref] $null = $fldChar3.SetAttribute('fldCharType', $xmlns, 'end')
+                        }
+                        else
+                        {
+                            $r = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
+                            [ref] $null = $r.AppendChild($rPr)
+
+                            ## Create a separate text block for each line/break
+                            $lines = $run -split '\r\n?|\n'
+                            for ($l = 0; $l -lt $lines.Count; $l++)
+                            {
+                                $line = $lines[$l]
+                                $t = $r.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
+                                if ($line -ne $line.Trim())
+                                {
+                                    ## Only preserve space if there is a preceeding or trailing space
+                                    [ref] $null = $t.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
+                                }
+                                [ref] $null = $t.AppendChild($XmlDocument.CreateTextNode($line))
+
+                                if ($l -lt ($lines.Count - 1))
+                                {
+                                    ## Don't add a line break to the last line/break
+                                    [ref] $null = $r.AppendChild($XmlDocument.CreateElement('w', 'br', $xmlns))
+                                }
                             }
                         }
                     }

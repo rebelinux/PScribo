@@ -68,6 +68,62 @@ InModuleScope 'PScribo' {
                 $result | Should BeExactly $expected
             }
 
+            It 'renders a link as an anchor tag' {
+                $paragraph = {
+                    Link -Text 'Click Here' -Uri 'https://example.com'
+                }
+                $expected = '<div><a href="https://example.com">Click Here</a></div>'
+
+                $result = Paragraph $paragraph | Out-HtmlParagraph
+
+                $result | Should BeExactly $expected
+            }
+
+            It 'renders a link with target="_blank" when NewWindow is specified' {
+                $paragraph = {
+                    Link -Text 'Click Here' -Uri 'https://example.com' -NewWindow
+                }
+                $expected = '<div><a href="https://example.com" target="_blank">Click Here</a></div>'
+
+                $result = Paragraph $paragraph | Out-HtmlParagraph
+
+                $result | Should BeExactly $expected
+            }
+
+            It 'renders a link mixed with text runs' {
+                $paragraph = {
+                    Text 'Visit'
+                    Link -Text 'here' -Uri 'https://example.com'
+                }
+                $expected = '<div>Visit <a href="https://example.com">here</a></div>'
+
+                $result = Paragraph $paragraph | Out-HtmlParagraph
+
+                $result | Should BeExactly $expected
+            }
+
+            It 'encodes special characters in link URI' {
+                $paragraph = {
+                    Link -Text 'Click' -Uri 'https://example.com/path?a=1&b=2'
+                }
+                $expected = '<div><a href="https://example.com/path?a=1&amp;b=2">Click</a></div>'
+
+                $result = Paragraph $paragraph | Out-HtmlParagraph
+
+                $result | Should BeExactly $expected
+            }
+
+            It 'encodes special characters in link text' {
+                $paragraph = {
+                    Link -Text '<Click>' -Uri 'https://example.com'
+                }
+                $expected = '<div><a href="https://example.com">&lt;Click&gt;</a></div>'
+
+                $result = Paragraph $paragraph | Out-HtmlParagraph
+
+                $result | Should BeExactly $expected
+            }
+
         } #end context By Named Parameter
 
         It 'uses invariant culture paragraph size (#6)' {

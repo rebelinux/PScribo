@@ -177,6 +177,14 @@ function Out-WordDocument
                     if ($null -ne $stream) { $stream.Close() }
                 }
             }
+
+            ## Process hyperlinks
+            $hyperlinkDocumentUri = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink'
+            foreach ($link in (Get-PScriboLink -Section $Document.Sections))
+            {
+                $linkUri = New-Object -TypeName 'System.Uri' -ArgumentList ($link.Uri)
+                [ref] $null = $documentPart.CreateRelationship($linkUri, [System.IO.Packaging.TargetMode]::External, $hyperlinkDocumentUri, $link.Name)
+            }
         }
 
         $package.Flush()
