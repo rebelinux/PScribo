@@ -130,7 +130,7 @@ function Out-WordParagraph
                                 $t = $r.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
                                 if ($line -ne $line.Trim())
                                 {
-                                    ## Only preserve space if there is a preceeding or trailing space
+                                    ## Only preserve space if there is a preceding or trailing space
                                     [ref] $null = $t.SetAttribute('space', 'http://www.w3.org/XML/1998/namespace', 'preserve')
                                 }
                                 [ref] $null = $t.AppendChild($XmlDocument.CreateTextNode($line))

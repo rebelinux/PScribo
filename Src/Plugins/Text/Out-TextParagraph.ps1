@@ -37,14 +37,13 @@ function Out-TextParagraph
         [System.Text.StringBuilder] $paragraphBuilder = New-Object -TypeName 'System.Text.StringBuilder'
         foreach ($paragraphRun in $Paragraph.Sections)
         {
+            $text = Resolve-PScriboToken -InputObject $paragraphRun.Text
             if ($paragraphRun.Type -eq 'PScribo.Link')
             {
-                $text = Resolve-PScriboToken -InputObject $paragraphRun.Text
                 [ref] $null = $paragraphBuilder.Append(('{0} ({1})' -f $text, $paragraphRun.Uri))
             }
             else
             {
-                $text = Resolve-PScriboToken -InputObject $paragraphRun.Text
                 [ref] $null = $paragraphBuilder.Append($text)
             }
 
