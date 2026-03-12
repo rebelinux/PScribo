@@ -29,7 +29,8 @@
         'Text',
         'TOC',
         'Write-PScriboMessage',
-        'Get-WordListLevel'
+        'Get-WordListLevel',
+        'Link'
     )
     AliasesToExport   = @(
         'GlobalOption'
