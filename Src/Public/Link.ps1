@@ -22,7 +22,7 @@ function Link
         [ValidateNotNullOrEmpty()]
         [System.String] $Uri,
 
-        ## Open link in a new window/tab (Html output only)
+        ## Open link in a new window/tab (Html and Word output)
         [Parameter(ValueFromPipelineByPropertyName)]
         [System.Management.Automation.SwitchParameter] $NewWindow,
 
