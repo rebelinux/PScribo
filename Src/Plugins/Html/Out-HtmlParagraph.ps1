@@ -52,7 +52,7 @@ function Out-HtmlParagraph
                 $encodedText = [System.Net.WebUtility]::HtmlEncode($text)
                 if ($paragraphRun.NewWindow)
                 {
-                    [ref] $null = $paragraphBuilder.AppendFormat('<a href="{0}" target="_blank">{1}</a>', $encodedUri, $encodedText)
+                    [ref] $null = $paragraphBuilder.AppendFormat('<a href="{0}" target="_blank" rel="noopener noreferrer">{1}</a>', $encodedUri, $encodedText)
                 }
                 else
                 {
