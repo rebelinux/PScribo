@@ -30,14 +30,14 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
             $result -is [System.Drawing.Image] | Should Be $true
         }
-        It "returns 'SixLabors.ImageSharp.Image' type" -Skip:$($Platform -ne 'Unix') {
+        It "returns 'SkiaSharp.SKImage' type" -Skip:$($Platform -ne 'Unix') {
             $testPath = Join-Path -Path $testRoot -ChildPath 'TestImage.jpg'
             $testUri = Resolve-ImageUri -Path $testPath
             $testBytes = Get-UriBytes -Uri $testUri
 
             $result = ConvertTo-Image -Bytes $testBytes
 
-            $result -is [SixLabors.ImageSharp.Image] | Should Be $true
+            $result -is [SkiaSharp.SKImage] | Should Be $true
         }
 
     }

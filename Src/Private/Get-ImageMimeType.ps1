@@ -8,6 +8,7 @@ function Get-ImageMimeType {
     param
     (
         [Parameter(Mandatory, ValueFromPipeline)]
+        [ValidateNotNull()]
         [Object] $Image
     )
     process {
@@ -24,16 +25,20 @@ function Get-ImageMimeType {
             'Windows'
         }
         if ($Platform -eq 'Unix') {
-            # Use ImageSharp on Unix systems
-            $format = $Image.Metadata.DecodedImageFormat
+            # Use SkiaSharp's encoded image format on Unix systems
+            $codec = [SkiaSharp.SKCodec]::Create($Image.EncodedData)
+            $format = $codec.EncodedFormat
             if ($format) {
-                switch ($format.Name.ToLower()) {
+                switch ($format.ToString().ToLowerInvariant()) {
                     'jpeg' { return 'image/jpeg' }
                     'png' { return 'image/png' }
                     'bmp' { return 'image/bmp' }
                     'gif' { return 'image/gif' }
-                    'tiff' { return 'image/tiff' }
                     'webp' { return 'image/webp' }
+                    'ico' { return 'image/x-icon' }
+                    'wbmp' { return 'image/vnd.wap.wbmp' }
+                    'heif' { return 'image/heif' }
+                    'avif' { return 'image/avif' }
                     default { return 'image/unknown' }
                 }
             }

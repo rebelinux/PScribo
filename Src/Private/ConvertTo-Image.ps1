@@ -4,7 +4,7 @@ function ConvertTo-Image {
         Creates an image from a byte[]
 #>
     [CmdletBinding()]
-    [OutputType([System.Drawing.Image], [SixLabors.ImageSharp.Image])]
+    [OutputType([System.Drawing.Image], [SkiaSharp.SKImage])]
     param
     (
         [Parameter(Mandatory, ValueFromPipeline)]
@@ -25,7 +25,7 @@ function ConvertTo-Image {
             }
             if ($Plataform -eq 'Unix') {
                 $memoryStream = [System.IO.MemoryStream]::new($Bytes)
-                [SixLabors.ImageSharp.Image] $image = [SixLabors.ImageSharp.Image]::Load($memoryStream)
+                [SkiaSharp.SKImage] $image = [SkiaSharp.SKImage]::FromEncodedData($memoryStream)
                 Write-Output -InputObject $image
             }
             else {
