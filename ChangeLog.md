@@ -2,6 +2,11 @@
 
 ## Versions ##
 
+### 0.12.0 ###
+
+* Add Link command for inline hyperlinks in paragraphs
+* Fix bugs in Image not working in Linux and MacOS
+
 ### 0.11.1 ###
 
 * Fixes bug in Word table references where header/footer is defined (#134)
