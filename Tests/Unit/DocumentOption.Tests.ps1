@@ -60,6 +60,12 @@ InModuleScope 'PScribo' {
             $pscriboDocument.Options['EnableSectionNumbering'] | Should Be $true
         }
 
+        It 'sets Word section numbering flag' {
+            DocumentOption -EnableWordSectionNumbering
+
+            $pscriboDocument.Options['EnableWordSectionNumbering'] | Should Be $true
+        }
+
         It 'sets page size to US Letter' {
             DocumentOption -PageSize Letter
 

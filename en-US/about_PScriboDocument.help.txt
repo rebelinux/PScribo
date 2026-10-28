@@ -55,6 +55,9 @@ SETTING DOCUMENT OPTIONS
         ForceUppercaseSection   - forces section names to uppercase.
         EnableSectionNumbering  - enables numbering on document sections. This numbering is automatic - you do not need
                                   to specify individual numbers.
+        EnableWordSectionNumbering - uses native multilevel numbering for Word section headings, allowing Word to
+                                    renumber them when sections are removed. This is separate from
+                                    EnableSectionNumbering, which continues to insert literal numbers.
         Margin                  - sets the all document margins to the points (pt) specified.
         MarginTopAndBottom      - set the top and bottom page margins to the points (pt) specified (defaults to 72 pt
                                   or 1 inch).

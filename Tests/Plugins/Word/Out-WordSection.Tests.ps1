@@ -114,5 +114,41 @@ InModuleScope 'PScribo' {
             $expected = GetMatch '[..]<w:r><w:t>2 Numbered Section</w:t></w:r></w:p>';
             $testDocument.DocumentElement.OuterXml | Should Match $expected;
         }
+
+        It 'uses native Word section numbering when enabled' {
+            $document = Document -Name 'TestDocument' {
+                DocumentOption -EnableWordSectionNumbering
+                Section -Name 'SectionLevel1' {
+                    Section -Name 'Nested Section' { }
+                }
+                Section -Name 'Excluded Section' -ExcludeFromTOC { }
+            }
+
+            $testDocument = Get-WordDocument -Document $document
+            $xml = $testDocument.DocumentElement.OuterXml
+
+            $xml | Should Match '<w:numPr><w:ilvl w:val="0" /><w:numId w:val="1" /></w:numPr>'
+            $xml | Should Match '<w:numPr><w:ilvl w:val="1" /><w:numId w:val="1" /></w:numPr>'
+            $xml | Should Match '<w:r><w:t>SectionLevel1</w:t></w:r>'
+            $xml | Should Not Match '<w:t>1 SectionLevel1</w:t>'
+            $xml | Should Match '<w:p><w:pPr><w:spacing w:before="160" w:after="160" /></w:pPr><w:r><w:t>Excluded Section</w:t></w:r></w:p>'
+        }
+
+        It 'keeps native Word section numbering ids separate from document lists' {
+            $document = Document -Name 'TestDocument' {
+                DocumentOption -EnableWordSectionNumbering
+                Section -Name 'Numbered Section' {
+                    List -Item 'Item'
+                }
+            }
+
+            $documentXml = (Get-WordDocument -Document $document).DocumentElement.OuterXml
+            $numberingDocument = Get-WordNumberingDocument -Lists $document.Lists -EnableWordSectionNumbering
+            $numberingXml = $numberingDocument.DocumentElement.OuterXml
+
+            $documentXml | Should Match '<w:numId w:val="2" />'
+            $numberingXml | Should Match '<w:abstractNum w:abstractNumId="1"><w:multiLevelType w:val="multilevel" />'
+            $numberingXml | Should Match '<w:num w:numId="2"><w:abstractNumId w:val="1" /></w:num>'
+        }
     }
 }

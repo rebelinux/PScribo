@@ -144,7 +144,7 @@ function Out-WordDocument
         $streamWriter = New-Object -TypeName System.IO.StreamWriter -ArgumentList ($numberingPart.GetStream([System.IO.FileMode]::Create, [System.IO.FileAccess]::ReadWrite))
         $xmlWriter = [System.Xml.XmlWriter]::Create($streamWriter)
         Write-PScriboMessage -Message ($localized.WritingDocumentPart -f $numberingUri)
-        $numberingXml = Get-WordNumberingDocument -Lists $Document.Lists
+        $numberingXml = Get-WordNumberingDocument -Lists $Document.Lists -EnableWordSectionNumbering:$Document.Options['EnableWordSectionNumbering']
         $numberingXml.Save($xmlWriter)
         $xmlWriter.Dispose()
         $streamWriter.Close()

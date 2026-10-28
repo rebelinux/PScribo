@@ -29,6 +29,15 @@ function Out-WordSection
             [ref] $null = $pStyle.SetAttribute('val', $xmlns, $Section.Style)
         }
 
+        if ($Document.Options['EnableWordSectionNumbering'] -and -not $Section.IsExcluded)
+        {
+            $numPr = $pPr.AppendChild($XmlDocument.CreateElement('w', 'numPr', $xmlns))
+            $ilvl = $numPr.AppendChild($XmlDocument.CreateElement('w', 'ilvl', $xmlns))
+            [ref] $null = $ilvl.SetAttribute('val', $xmlns, $Section.Level)
+            $numId = $numPr.AppendChild($XmlDocument.CreateElement('w', 'numId', $xmlns))
+            [ref] $null = $numId.SetAttribute('val', $xmlns, $Document.Lists.Count + 1)
+        }
+
         if ($Section.Tabs -gt 0)
         {
             $ind = $pPr.AppendChild($XmlDocument.CreateElement('w', 'ind', $xmlns));
@@ -58,7 +67,11 @@ function Out-WordSection
         $r = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
         $t = $r.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
 
-        if ($Document.Options['EnableSectionNumbering'])
+        if ($Document.Options['EnableWordSectionNumbering'])
+        {
+            [System.String] $sectionName = '{0}' -f $Section.Name
+        }
+        elseif ($Document.Options['EnableSectionNumbering'])
         {
             [System.String] $sectionName = '{0} {1}' -f $Section.Number, $Section.Name
         }

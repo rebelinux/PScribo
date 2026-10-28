@@ -22,6 +22,10 @@ function DocumentOption {
         [Parameter(ValueFromPipelineByPropertyName)]
         [System.Management.Automation.SwitchParameter] $EnableSectionNumbering,
 
+        ## Enable native Word section/heading numbering
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [System.Management.Automation.SwitchParameter] $EnableWordSectionNumbering,
+
         ## Default space replacement separator
         [Parameter(ValueFromPipelineByPropertyName)]
         [Alias('Separator')]
@@ -81,6 +85,11 @@ function DocumentOption {
         {
             $localized.DocumentOptionSectionNumbering | Write-PScriboMessage
             $pscriboDocument.Options['EnableSectionNumbering'] = $true
+        }
+
+        if ($EnableWordSectionNumbering)
+        {
+            $pscriboDocument.Options['EnableWordSectionNumbering'] = $true
         }
 
         if ($DefaultFont)
