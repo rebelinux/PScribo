@@ -68,6 +68,22 @@ function Get-WordStylesDocument
             [ref] $null = $documentStyles.AppendChild($documentTableStyle)
         }
 
+        ## Links need a character style so they are recognisable as links
+        if ($Document.Properties.ContainsKey('Links') -and ($Document.Properties['Links'] -gt 0))
+        {
+            $hyperlinkStyle = $documentStyles.AppendChild($xmlDocument.CreateElement('w', 'style', $xmlns))
+            [ref] $null = $hyperlinkStyle.SetAttribute('type', $xmlns, 'character')
+            [ref] $null = $hyperlinkStyle.SetAttribute('styleId', $xmlns, 'Hyperlink')
+            $hyperlinkStyleName = $hyperlinkStyle.AppendChild($xmlDocument.CreateElement('w', 'name', $xmlns))
+            [ref] $null = $hyperlinkStyleName.SetAttribute('val', $xmlns, 'Hyperlink')
+            [ref] $null = $hyperlinkStyle.AppendChild($xmlDocument.CreateElement('w', 'uiPriority', $xmlns)).SetAttribute('val', $xmlns, '99')
+            $hyperlinkRPr = $hyperlinkStyle.AppendChild($xmlDocument.CreateElement('w', 'rPr', $xmlns))
+            $hyperlinkColor = $hyperlinkRPr.AppendChild($xmlDocument.CreateElement('w', 'color', $xmlns))
+            [ref] $null = $hyperlinkColor.SetAttribute('val', $xmlns, '0563C1')
+            $hyperlinkUnderline = $hyperlinkRPr.AppendChild($xmlDocument.CreateElement('w', 'u', $xmlns))
+            [ref] $null = $hyperlinkUnderline.SetAttribute('val', $xmlns, 'single')
+        }
+
         return $xmlDocument
     }
 }

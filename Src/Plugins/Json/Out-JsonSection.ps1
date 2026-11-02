@@ -25,6 +25,10 @@ function Out-JsonSection
     process
     {
         $sectionBuilder.Add("name", $Section.Name)
+        if ($null -ne (Get-PScriboAnchorEntry -Id $Section.LinkId))
+        {
+            $sectionBuilder.Add("id", $Section.LinkId)
+        }
 
         foreach ($subSection in $Section.Sections.GetEnumerator())
         {
@@ -51,6 +55,10 @@ function Out-JsonSection
                 'PScribo.Table'
                 {
                     [ref] $null = $sectionBuilder.Add("table$($table)", (Out-JsonTable -Table $subSection))
+                    if ($null -ne (Get-PScriboAnchorEntry -Id $subSection.LinkId))
+                    {
+                        [ref] $null = $sectionBuilder.Add("table$($table)Id", $subSection.LinkId)
+                    }
                     $table++
                 }
                 Default

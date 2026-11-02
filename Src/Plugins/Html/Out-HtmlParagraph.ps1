@@ -60,9 +60,7 @@ function Out-HtmlParagraph
                 [ref] $null = $paragraphBuilder.AppendFormat('<span style="{0}">', $inlineStyle)
             }
 
-            $text = Resolve-PScriboToken -InputObject $paragraphRun.Text
-            $encodedText = [System.Net.WebUtility]::HtmlEncode($text)
-            $encodedText = $encodedText.Replace([System.Environment]::NewLine, '<br />')
+            $encodedText = ConvertTo-HtmlLinkedText -Text $paragraphRun.Text
             [ref] $null = $paragraphBuilder.Append($encodedText)
 
             if ($paragraphRun.HasStyle -or $paragraphRun.HasInlineStyle)

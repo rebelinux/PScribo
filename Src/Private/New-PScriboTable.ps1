@@ -60,7 +60,12 @@ function New-PScriboTable
         [System.UInt16] $Tabs,
 
         [Parameter(ValueFromPipelineByPropertyName)]
-        [System.String] $Caption
+        [System.String] $Caption,
+
+        ## Anchor Id that links can refer to
+        [Parameter()]
+        [AllowNull()]
+        [System.String] $LinkId = $null
     )
     process
     {
@@ -69,7 +74,8 @@ function New-PScriboTable
         $pscriboTable = [PSCustomObject] @{
             Id                = $Name.Replace(' ', $pscriboDocument.Options['SpaceSeparator']).ToUpper()
             Name              = $Name
-            Number            = $pscriboDocument.Properties['Tables']
+            LinkId            = $LinkId
+            Number             = $pscriboDocument.Properties['Tables']
             Type              = $typeName
             Columns           = $Columns
             ColumnWidths      = $ColumnWidths

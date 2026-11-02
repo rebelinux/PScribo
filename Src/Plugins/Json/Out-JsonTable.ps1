@@ -23,7 +23,29 @@ function Out-JsonTable
             [ref] $null = $tableBuilder.Add((Get-JsonTableCaption -Table $Table))
         }
 
-        [ref] $null = $tableBuilder.Add(($Table.Rows | Select-Object -Property * -ExcludeProperty '*__Style'))
+        $rows = @($Table.Rows | Select-Object -Property * -ExcludeProperty '*__Style')
+
+        ## Rows are copies at this point, so replace link tokens with their text
+        foreach ($row in $rows)
+        {
+            foreach ($property in $row.PSObject.Properties)
+            {
+                if ($property.Value -is [System.String])
+                {
+                    $property.Value = ConvertTo-PScriboLinkText -InputObject $property.Value
+                }
+            }
+        }
+        ## Keep the existing output shape: a single row is not wrapped in an array
+        if ($rows.Count -eq 1)
+        {
+            $rows = $rows[0]
+        }
+        elseif ($rows.Count -eq 0)
+        {
+            $rows = $null
+        }
+        [ref] $null = $tableBuilder.Add($rows)
 
         return $tableBuilder
     }

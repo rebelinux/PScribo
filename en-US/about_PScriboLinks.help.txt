@@ -1,0 +1,53 @@
+TOPIC
+    about_PScriboLinks
+
+SHORT DESCRIPTION
+    Describes how to add external and internal links to a PScribo document.
+
+LONG DESCRIPTION
+    PScribo documents can contain links to external resources and to other parts
+    of the same document.
+
+    Link -Text <text> -Uri <uri>
+        Inserts a link to an external resource into a Paragraph. Only http, https,
+        ftp, mailto and tel URIs are rendered as links. Any other URI is rendered as
+        plain text and a warning is written.
+
+    Link -Anchor <id> [-Text <text>]
+        Inserts a link to a Section or Table with a matching -Id, or to a location
+        marked with Get-PScriboAnchor. When -Text is omitted the section heading or
+        table caption/name is used.
+
+    Get-PScriboLink -Anchor <id> | -Uri <uri> [-Text <text>]
+        Returns a link as a string so that it can be used in table cells.
+
+    Get-PScriboAnchor -Id <id>
+        Returns a marker string that is embedded in a table cell (or paragraph text)
+        to create a target, for example for a table row. The marker is not visible.
+
+    Section -Id <id> and Table -Id <id>
+        Define the anchor of a section or table. Ids must be unique, cannot be empty,
+        cannot contain '|' or '#!>' and cannot span multiple lines.
+
+    Internal links are resolved when the document is rendered, so a link can refer to
+    an anchor that appears later in the document. A link to an unknown anchor is
+    rendered as plain text and a warning is written; the document is still created.
+
+OUTPUT
+    Word      w:hyperlink (external relationship, or w:anchor for internal links) and
+              w:bookmarkStart/w:bookmarkEnd. Bookmark names are derived from the Id so
+              they are valid Word names (letter first, at most 40 characters).
+    Html      <a href="..."> and id attributes on headings, tables and anchors.
+    Text      Text > (uri) for external links; Text (see section N) or
+              Text (see 'Title') for internal links.
+    Json      Paragraphs containing links are output as a list of text/link items.
+
+FEATURE DETECTION
+    Modules that must work with PScribo versions that have no link support can test
+    for the feature with:
+
+        Get-Command -Name Get-PScriboLink -ErrorAction SilentlyContinue
+
+SEE ALSO
+    about_PScribo
+    about_PScriboDocument

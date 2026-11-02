@@ -152,6 +152,13 @@ function Out-WordDocument
         $numberingDocumentUri = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering'
         [ref] $null = $documentPart.CreateRelationship($numberingUri, [System.IO.Packaging.TargetMode]::Internal, $numberingDocumentUri, 'rId7')
 
+        ## Create the external hyperlink relationships collected while generating document.xml
+        foreach ($hyperlink in $script:pscriboWordHyperlinks.GetEnumerator())
+        {
+            $hyperlinkRelationshipUri = New-Object -TypeName System.Uri -ArgumentList ($hyperlink.Key, [System.UriKind]::Absolute)
+            [ref] $null = $documentPart.CreateRelationship($hyperlinkRelationshipUri, [System.IO.Packaging.TargetMode]::External, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', $hyperlink.Value)
+        }
+
         ## Process images (assuming we have a section, e.g. example03.ps1)
         if ($Document.Sections.Count -gt 0)
         {

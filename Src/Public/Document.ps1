@@ -53,7 +53,7 @@ function Document
         }
 
         Invoke-PScriboSection
-
+        Initialize-PScriboLink -PScriboDocument $pscriboDocument
         ## Process IsSectionBreakEnd (for Word plugin)
         if ($pscriboDocument.Sections.Count -gt 0)
         {

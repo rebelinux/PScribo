@@ -67,6 +67,12 @@ function Out-WordSection
         $r = $p.AppendChild($XmlDocument.CreateElement('w', 'r', $xmlns))
         $t = $r.AppendChild($XmlDocument.CreateElement('w', 't', $xmlns))
 
+        $bookmark = New-WordBookmark -AnchorId $Section.LinkId -XmlDocument $XmlDocument
+        if ($null -ne $bookmark)
+        {
+            [ref] $null = $p.InsertBefore($bookmark.Start, $r)
+        }
+
         if ($Document.Options['EnableWordSectionNumbering'])
         {
             [System.String] $sectionName = '{0}' -f $Section.Name
@@ -80,6 +86,10 @@ function Out-WordSection
             [System.String] $sectionName = '{0}' -f $Section.Name
         }
         [ref] $null = $t.AppendChild($XmlDocument.CreateTextNode($sectionName))
+        if ($null -ne $bookmark)
+        {
+            [ref] $null = $p.AppendChild($bookmark.End)
+        }
 
         foreach ($subSection in $Section.Sections.GetEnumerator())
         {

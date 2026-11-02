@@ -67,9 +67,7 @@ function Get-HtmlTable
                     }
                     else
                     {
-                        $cellContent = Resolve-PScriboToken -InputObject $cell.Content
-                        $encodedHtmlContent = [System.Net.WebUtility]::HtmlEncode($cellContent)
-                        $encodedHtmlContent = $encodedHtmlContent.Replace([System.Environment]::NewLine, '<br />')
+                        $encodedHtmlContent = ConvertTo-HtmlLinkedText -Text $cell.Content
                     }
 
                     if ($formattedTable.HasHeaderColumn -and ($c -eq 0))

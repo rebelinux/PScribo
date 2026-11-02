@@ -34,7 +34,12 @@ function New-PScriboSection
         ## Section orientation
         [Parameter(ValueFromPipelineByPropertyName)]
         [ValidateSet('Portrait','Landscape')]
-        [System.String] $Orientation
+        [System.String] $Orientation,
+
+        ## Anchor Id that links can refer to
+        [Parameter()]
+        [AllowNull()]
+        [System.String] $LinkId = $null
     )
     begin
     {
@@ -53,6 +58,7 @@ function New-PScriboSection
         $pscriboSection = [PSCustomObject] @{
             Id                = [System.Guid]::NewGuid().ToString();
             Level             = 0;
+            LinkId            = $LinkId;
             Number            = '';
             Name              = $Name;
             Type              = $typeName;

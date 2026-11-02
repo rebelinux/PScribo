@@ -51,7 +51,13 @@ function Out-HtmlSection
             $tabEm = ConvertTo-InvariantCultureString -Object (ConvertTo-Em -Millimeter (12.7 * $Section.Tabs)) -Format 'f2'
             [ref] $null = $sectionBuilder.AppendFormat('<div style="margin-left: {0}rem;">' -f $tabEm)
         }
-        [ref] $null = $sectionBuilder.AppendFormat('<a name="{0}"><h{1} class="{2}">{3}</h{1}></a>', $Section.Id, $headerLevel, $className, $sectionName.TrimStart())
+        $headingId = ''
+        $sectionEntry = Get-PScriboAnchorEntry -Id $Section.LinkId
+        if ($null -ne $sectionEntry)
+        {
+            $headingId = ' id="{0}"' -f $sectionEntry.Name
+        }
+        [ref] $null = $sectionBuilder.AppendFormat('<a name="{0}"><h{1} class="{2}"{4}>{3}</h{1}></a>', $Section.Id, $headerLevel, $className, $sectionName.TrimStart(), $headingId)
         if ($Section.Tabs -gt 0)
         {
             [ref] $null = $sectionBuilder.Append('</div>')

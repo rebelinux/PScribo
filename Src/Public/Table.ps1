@@ -28,6 +28,9 @@ function Table
 
     .PARAMETER Caption
 
+    .PARAMETER Id
+        Anchor Id used to link to this table with Link -Anchor.
+
     .EXAMPLE
         Table -Name 'Table 1' -InputObject $(Get-Service) -Columns 'Name','DisplayName','Status' -ColumnWidths 40,20,40
 #>
@@ -106,7 +109,14 @@ function Table
 
         ## Table caption
         [Parameter(ValueFromPipelineByPropertyName)]
-        [System.String] $Caption
+        [System.String] $Caption,
+
+        ## Anchor Id that links can refer to (see Link -Anchor)
+        [Parameter()]
+        [Alias('Anchor')]
+        [ValidateNotNullOrEmpty()]
+        [ValidateScript({ Test-PScriboAnchorId -Id $_ })]
+        [System.String] $Id
     )
     begin
     {
@@ -248,6 +258,11 @@ function Table
         if ($PSBoundParameters.ContainsKey('Caption'))
         {
             $newPScriboTableParams['Caption'] = $Caption
+        }
+
+        if ($PSBoundParameters.ContainsKey('Id'))
+        {
+            $newPScriboTableParams['LinkId'] = $Id
         }
 
         return (New-PScriboTable @newPScriboTableParams)

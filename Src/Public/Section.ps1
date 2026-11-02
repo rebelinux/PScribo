@@ -34,7 +34,14 @@ function Section
         ## Section orientation
         [Parameter(ValueFromPipelineByPropertyName)]
         [ValidateSet('Portrait','Landscape')]
-        [System.String] $Orientation
+        [System.String] $Orientation,
+
+        ## Anchor Id that links can refer to (see Link -Anchor)
+        [Parameter()]
+        [Alias('Anchor')]
+        [ValidateNotNullOrEmpty()]
+        [ValidateScript({ Test-PScriboAnchorId -Id $_ })]
+        [System.String] $Id
     )
     process
     {
@@ -49,6 +56,10 @@ function Section
         if ($PSBoundParameters.ContainsKey('Orientation'))
         {
             $newPScriboSectionParams['Orientation'] = $Orientation
+        }
+        if ($PSBoundParameters.ContainsKey('Id'))
+        {
+            $newPScriboSectionParams['LinkId'] = $Id
         }
         $pscriboSection = New-PScriboSection @newPScriboSectionParams
 

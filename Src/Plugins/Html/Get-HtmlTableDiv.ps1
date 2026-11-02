@@ -24,6 +24,11 @@ function Get-HtmlTableDiv
         }
         ## Ensure we close the <div style=" "> tag
         [ref] $null = $divBuilder.AppendFormat('"><table class="{0}"', $Table.Style.ToLower())
+        $tableEntry = Get-PScriboAnchorEntry -Id $Table.LinkId
+        if ($null -ne $tableEntry)
+        {
+            [ref] $null = $divBuilder.AppendFormat(' id="{0}"', $tableEntry.Name)
+        }
 
         $styleElements = @()
         if ($Table.Width -gt 0)

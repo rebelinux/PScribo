@@ -34,27 +34,36 @@ function Get-WordHeaderFooterDocument
         }
         $element = $headerFooterDocument.CreateElement('w', $elementName, $xmlns)
 
-        foreach ($subSection in $HeaderFooter.Sections)
+        ## Hyperlink and bookmark relationships belong to the main document part only
+        $script:pscriboWordInHeaderFooter = $true
+        try
         {
-            switch ($subSection.Type)
+            foreach ($subSection in $HeaderFooter.Sections)
             {
-                'PScribo.Paragraph'
+                switch ($subSection.Type)
                 {
-                    [ref] $null = $element.AppendChild((Out-WordParagraph -Paragraph $subSection -XmlDocument $headerFooterDocument))
-                }
-                'PScribo.Table'
-                {
-                    Out-WordTable -Table $subSection -XmlDocument $headerFooterDocument -Element $element
-                }
-                'PScribo.BlankLine'
-                {
-                    Out-WordBlankLine -BlankLine $subSection -XmlDocument $headerFooterDocument -Element $element
-                }
-                'PScribo.LineBreak'
-                {
-                    [ref] $null = $element.AppendChild((Out-WordLineBreak -LineBreak $subSection -XmlDocument $headerFooterDocument))
+                    'PScribo.Paragraph'
+                    {
+                        [ref] $null = $element.AppendChild((Out-WordParagraph -Paragraph $subSection -XmlDocument $headerFooterDocument))
+                    }
+                    'PScribo.Table'
+                    {
+                        Out-WordTable -Table $subSection -XmlDocument $headerFooterDocument -Element $element
+                    }
+                    'PScribo.BlankLine'
+                    {
+                        Out-WordBlankLine -BlankLine $subSection -XmlDocument $headerFooterDocument -Element $element
+                    }
+                    'PScribo.LineBreak'
+                    {
+                        [ref] $null = $element.AppendChild((Out-WordLineBreak -LineBreak $subSection -XmlDocument $headerFooterDocument))
+                    }
                 }
             }
+        }
+        finally
+        {
+            $script:pscriboWordInHeaderFooter = $false
         }
 
         [ref] $null = $headerFooterDocument.AppendChild($element)

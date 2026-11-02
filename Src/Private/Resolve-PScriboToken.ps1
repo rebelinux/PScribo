@@ -13,7 +13,8 @@ function Resolve-PScriboToken
     )
     process
     {
-        $tokenisedText = $InputObject -replace
+        $tokenisedText = ConvertTo-PScriboLinkText -InputObject $InputObject
+        $tokenisedText = $tokenisedText -replace
             '<!#\s?PageNumber\s?#!>', $script:currentPageNumber -replace
             '<!#\s?TotalPages\s?#!>', $Document.Properties.Pages
         return $tokenisedText

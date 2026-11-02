@@ -163,6 +163,15 @@ function Out-WordTable
                     $paragraphRun.IsParagraphRunEnd = $true
                     [ref] $null = $paragraph.Sections.Add($paragraphRun)
                     $p = Out-WordParagraph -Paragraph $paragraph -XmlDocument $XmlDocument
+                    if (($r -eq 0) -and ($c -eq 0) -and ($tableNumber -eq 0))
+                    {
+                        $bookmark = New-WordBookmark -AnchorId $Table.LinkId -XmlDocument $XmlDocument
+                        if ($null -ne $bookmark)
+                        {
+                            [ref] $null = $p.InsertAfter($bookmark.Start, $p.FirstChild)
+                            [ref] $null = $p.AppendChild($bookmark.End)
+                        }
+                    }
                     [ref] $null = $tc.AppendChild($p)
                 }
             }
