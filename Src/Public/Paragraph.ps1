@@ -133,7 +133,7 @@ function Paragraph {
                 if ($result -is [System.Management.Automation.PSObject])
                 {
                     if (('Type' -in $result.PSObject.Properties.Name) -and
-                        ($result.Type -in 'PScribo.ParagraphRun','PScribo.Link'))
+                        ($result.Type -eq 'PScribo.ParagraphRun'))
                     {
                         [ref] $null = $paragraph.Sections.Add($result)
                     }
