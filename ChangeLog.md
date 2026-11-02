@@ -5,6 +5,7 @@
 ### 0.12.0 ###
 
 * Fix bugs in Image not working in Linux and MacOS
+* Fix Word plugin: write section numbers as a Word list so headings renumber themselves
 * Adds external hyperlink support with the `Link -Uri` keyword (#112) @Atreidae
   * Word output uses `w:hyperlink` with an external relationship and the `Hyperlink` character style
   * Html output uses `<a href>`; Text output includes the URI; Json output includes structured link objects
