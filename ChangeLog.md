@@ -18,6 +18,8 @@
   * Word output uses `w:hyperlink` anchors; Html output uses `href="#id"`
   * Text output includes a 'see section' reference; Json output includes structured link objects
   * Unresolved links are rendered as plain text with a warning
+* Refactor pester test files for consistency and readability
+  * Upgrades to Pester v5+
 
 ### 0.11.1 ###
 
