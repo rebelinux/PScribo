@@ -6,15 +6,17 @@ Import-Module "$moduleRoot\PScribo.psm1" -Force;
 InModuleScope 'PScribo' {
 
     Describe 'TOC' {
-        $pscriboDocument = Document 'ScaffoldDocument' {};
+        BeforeAll {
+            $pscriboDocument = Document 'ScaffoldDocument' {}
+        };
 
         Context 'By Named Parameter' {
 
             It 'returns a PSCustomObject object' {
                 $t = TOC -Name Test
 
-                $t.GetType().Name | Should Be 'PSCustomObject'
-                $t.Type | Should Be 'PScribo.TOC'
+                $t.GetType().Name | Should -Be 'PSCustomObject'
+                $t.Type | Should -Be 'PScribo.TOC'
             }
 
             It 'creates a TOC by named -Name parameter' {
@@ -22,7 +24,7 @@ InModuleScope 'PScribo' {
 
                 $t = TOC -Name $text
 
-                $t.Name | Should Be $text
+                $t.Name | Should -Be $text
             }
 
             It 'creates a TOC by named -Name parameter with enabled -ForceUppercaseSection option' {
@@ -31,7 +33,7 @@ InModuleScope 'PScribo' {
 
                 $t = TOC -Name $text
 
-                $t.Name | Should Be $text.ToUpper()
+                $t.Name | Should -Be $text.ToUpper()
             }
         }
 
@@ -42,7 +44,7 @@ InModuleScope 'PScribo' {
 
                 $t = TOC $text
 
-                $t.Name | Should Be $text
+                $t.Name | Should -Be $text
             }
 
             It 'creates a TOC by named -Name parameter with enabled -ForceUppercaseSection option' {
@@ -51,7 +53,7 @@ InModuleScope 'PScribo' {
 
                 $t = TOC $text
 
-                $t.Name | Should Be $text.ToUpper()
+                $t.Name | Should -Be $text.ToUpper()
             }
         }
     }

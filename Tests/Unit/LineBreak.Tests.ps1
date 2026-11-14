@@ -6,24 +6,26 @@ Import-Module "$moduleRoot\PScribo.psm1" -Force;
 InModuleScope 'PScribo' {
 
     Describe 'LineBreak' {
-        $pscriboDocument = Document 'ScaffoldDocument' {};
+        BeforeAll {
+            $pscriboDocument = Document 'ScaffoldDocument' {}
+        };
 
         It 'returns a PSCustomObject object' {
             $l = LineBreak
 
-            $l.GetType().Name | Should Be 'PSCustomObject'
+            $l.GetType().Name | Should -Be 'PSCustomObject'
         }
 
         It 'creates a PScribo.LineBreak type' {
             $l = LineBreak
 
-            $l.Type | Should Be 'PScribo.LineBreak'
+            $l.Type | Should -Be 'PScribo.LineBreak'
         }
 
         It 'creates line break with no parameters' {
             $l = LineBreak
 
-            $l.Id | Should Not Be $null
+            $l.Id | Should -Not -Be $null
         }
 
         It 'creates line break by named -Id parameter' {
@@ -31,7 +33,7 @@ InModuleScope 'PScribo' {
 
             $l = LineBreak -Id $id
 
-            $l.Id | Should Be $id
+            $l.Id | Should -Be $id
         }
 
         It 'creates line break by positional -Id parameter' {
@@ -39,7 +41,7 @@ InModuleScope 'PScribo' {
 
             $l = LineBreak $id
 
-            $l.Id | Should Be $id
+            $l.Id | Should -Be $id
         }
     }
 }

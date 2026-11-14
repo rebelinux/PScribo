@@ -5,13 +5,21 @@ Import-Module -Name "$moduleRoot\PScribo.psm1" -Force
 
 InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
-    $testRoot = Split-Path -Path $PSScriptRoot -Parent
+    
 
-    Describe -Name 'Image' -Fixture {
+    Describe -Name 'Image' {
+        BeforeAll {
+            $testRoot = Split-Path -Path $PSScriptRoot -Parent
+        }
 
-        $pscriboDocument = Document -Name 'ScaffoldDocument' -ScriptBlock { }
-        $testJpgFile = Join-Path -Path $testRoot -ChildPath 'TestImage.jpg'
-        $testPngFile = Join-Path -Path $testRoot -ChildPath 'TestImage.png'
+
+        BeforeAll {
+            $pscriboDocument = Document -Name 'ScaffoldDocument' -ScriptBlock { }
+            $testJpgFile = Join-Path -Path $testRoot -ChildPath 'TestImage.jpg'
+            $testPngFile = Join-Path -Path $testRoot -ChildPath 'TestImage.png'
+        }
+        
+        
 
         It -name 'returns "PSCustomObject" object.' -test {
             $p = Image -Path $testJpgFile

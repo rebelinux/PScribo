@@ -119,7 +119,7 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
             NumberStyle -Name $numberStyleName -Format Number -Default
 
-            $pscriboDocument.DefaultNumberStyle | Should Be $numberStyleName
+            $pscriboDocument.DefaultNumberStyle | Should -Be $numberStyleName
         }
 
     }

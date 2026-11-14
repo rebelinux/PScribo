@@ -9,51 +9,51 @@ InModuleScope 'PScribo' {
 
         It 'returns a PSCustomObject object' {
             $document = Document -Name 'Test Document' -ScriptBlock { }
-            $document.GetType().Name | Should Be 'PSCustomObject'
+            $document.GetType().Name | Should -Be 'PSCustomObject'
         }
 
         It 'creates a PScribo.Document type' {
             $document = Document -Name 'Test Document' -ScriptBlock { }
-            $document.Type | Should Be 'PScribo.Document'
+            $document.Type | Should -Be 'PScribo.Document'
         }
 
         It 'creates a Document by named -Name parameter' {
             $document = Document -Name 'Test Document' -ScriptBlock { }
-            $document.Name | Should BeExactly 'Test Document'
+            $document.Name | Should -BeExactly 'Test Document'
         }
 
         It 'throws when a Name of a Document contains incorrect chars' {
-            { Document -Name [String]"Test-File-201606$([char]0)08-1315.txt" -ScriptBlock {} } | Should Throw
+            { Document -Name [String]"Test-File-201606$([char]0)08-1315.txt" -ScriptBlock {} } | Should -Throw
         }
 
-        It 'default Document.Options type should be hashtable' {
+        It 'default Document.Options type Should -Be hashtable' {
             $document = Document -Name 'Test Document' -ScriptBlock { }
-            $document.Options.GetType() | Should Be 'Hashtable'
+            $document.Options.GetType() | Should -Be 'Hashtable'
         }
 
-        It 'default Document.Styles type should be hashtable' {
+        It 'default Document.Styles type Should -Be hashtable' {
             $document = Document -Name 'Test Document' -ScriptBlock { }
-            $document.Styles.GetType() | Should Be 'Hashtable'
+            $document.Styles.GetType() | Should -Be 'Hashtable'
         }
 
-        It 'default Document.Style should be named "Normal"' {
+        It 'default Document.Style Should -Be named "Normal"' {
             $document = Document -Name 'Test Document' -ScriptBlock { }
-            $document.DefaultStyle | Should BeExactly 'Normal'
+            $document.DefaultStyle | Should -BeExactly 'Normal'
         }
 
-        It 'default Document.TableStyle should be named "TableDefault"' {
+        It 'default Document.TableStyle Should -Be named "TableDefault"' {
             $document = Document -Name 'Test Document' -ScriptBlock { }
-            $document.DefaultTableStyle | Should BeExactly 'TableDefault'
+            $document.DefaultTableStyle | Should -BeExactly 'TableDefault'
         }
 
         It 'creates a Document by positional -Name and -ScriptBlock parameters' {
             $document = Document 'Test Document' { }
-            $document.Name | Should BeExactly 'Test Document'
+            $document.Name | Should -BeExactly 'Test Document'
         }
 
         It 'creates a concatenated document Id by positional -Name and -ScriptBLock parameters' {
             $document = Document 'Test Document' { }
-            $document.Id | Should BeExactly 'TESTDOCUMENT'
+            $document.Id | Should -BeExactly 'TESTDOCUMENT'
         }
     }
 }

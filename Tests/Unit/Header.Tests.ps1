@@ -7,7 +7,9 @@ InModuleScope 'PScribo' {
 
     Describe 'Header' {
 
-        $pscriboDocument = Document 'ScaffoldDocument' {}
+        BeforeAll {
+            $pscriboDocument = Document 'ScaffoldDocument' {}
+        }
 
         Context 'Default Header' {
 
@@ -15,7 +17,7 @@ InModuleScope 'PScribo' {
                 $pscriboDocument = Document 'ScaffoldDocument' {
                     Header -Default { }
                 }
-                $pscriboDocument.Header.DefaultHeader -is [PSCustomObject] | Should Be $true
+                $pscriboDocument.Header.DefaultHeader -is [PSCustomObject] | Should -Be $true
             }
 
             It 'creates a PScribo.Paragraph type' {
@@ -23,7 +25,7 @@ InModuleScope 'PScribo' {
                     Header -Default { }
                 }
 
-                $pscriboDocument.Header.DefaultHeader.Type | Should Be 'PScribo.Header'
+                $pscriboDocument.Header.DefaultHeader.Type | Should -Be 'PScribo.Header'
             }
 
             It "also sets 'FirstPageHeader'" {
@@ -31,8 +33,8 @@ InModuleScope 'PScribo' {
                     Header -Default -IncludeOnFirstPage { }
                 }
 
-                $pscriboDocument.Header.DefaultHeader.Type | Should Be 'PScribo.Header'
-                $pscriboDocument.Header.FirstPageHeader.Type | Should Be 'PScribo.Header'
+                $pscriboDocument.Header.DefaultHeader.Type | Should -Be 'PScribo.Header'
+                $pscriboDocument.Header.FirstPageHeader.Type | Should -Be 'PScribo.Header'
             }
 
             It "adds additional blank line by default" {
@@ -40,7 +42,7 @@ InModuleScope 'PScribo' {
                     Header -Default { }
                 }
 
-                $pscriboDocument.Header.DefaultHeader.Sections.Type | Should Be 'PScribo.BlankLine'
+                $pscriboDocument.Header.DefaultHeader.Sections.Type | Should -Be 'PScribo.BlankLine'
             }
 
             It "adds no blank line when '-NoSpace' specified" {
@@ -48,7 +50,7 @@ InModuleScope 'PScribo' {
                     Header -Default -NoSpace { }
                 }
 
-                $pscriboDocument.Header.DefaultHeader.Sections | Should BeNullOrEmpty
+                $pscriboDocument.Header.DefaultHeader.Sections | Should -BeNullOrEmpty
             }
 
             It "processes embedded 'PScribo.Paragraph'" {
@@ -58,7 +60,7 @@ InModuleScope 'PScribo' {
                     }
                 }
 
-                $pscriboDocument.Header.DefaultHeader.Sections.Type | Should Be 'PScribo.Paragraph'
+                $pscriboDocument.Header.DefaultHeader.Sections.Type | Should -Be 'PScribo.Paragraph'
             }
 
             It "processes embedded 'PScribo.Table'" {
@@ -68,7 +70,7 @@ InModuleScope 'PScribo' {
                     }
                 }
 
-                $pscriboDocument.Header.DefaultHeader.Sections.Type | Should Be 'PScribo.Table'
+                $pscriboDocument.Header.DefaultHeader.Sections.Type | Should -Be 'PScribo.Table'
             }
         }
 
@@ -78,7 +80,7 @@ InModuleScope 'PScribo' {
                 $pscriboDocument = Document 'ScaffoldDocument' {
                     Header -FirstPage { }
                 }
-                $pscriboDocument.Header.FirstPageHeader -is [PSCustomObject] | Should Be $true
+                $pscriboDocument.Header.FirstPageHeader -is [PSCustomObject] | Should -Be $true
             }
 
             It 'creates a PScribo.Paragraph type' {
@@ -86,7 +88,7 @@ InModuleScope 'PScribo' {
                     Header -FirstPage { }
                 }
 
-                $pscriboDocument.Header.FirstPageHeader.Type | Should Be 'PScribo.Header'
+                $pscriboDocument.Header.FirstPageHeader.Type | Should -Be 'PScribo.Header'
             }
 
             It "adds additional blank line by default" {
@@ -94,7 +96,7 @@ InModuleScope 'PScribo' {
                     Header -FirstPage { }
                 }
 
-                $pscriboDocument.Header.FirstPageHeader.Sections.Type | Should Be 'PScribo.BlankLine'
+                $pscriboDocument.Header.FirstPageHeader.Sections.Type | Should -Be 'PScribo.BlankLine'
             }
 
             It "adds no blank line when '-NoSpace' specified" {
@@ -102,7 +104,7 @@ InModuleScope 'PScribo' {
                     Header -FirstPage -NoSpace { }
                 }
 
-                $pscriboDocument.Header.FirstPageHeader.Sections | Should BeNullOrEmpty
+                $pscriboDocument.Header.FirstPageHeader.Sections | Should -BeNullOrEmpty
             }
 
             It "processes embedded 'PScribo.Paragraph'" {
@@ -112,7 +114,7 @@ InModuleScope 'PScribo' {
                     }
                 }
 
-                $pscriboDocument.Header.FirstPageHeader.Sections.Type | Should Be 'PScribo.Paragraph'
+                $pscriboDocument.Header.FirstPageHeader.Sections.Type | Should -Be 'PScribo.Paragraph'
             }
 
             It "processes embedded 'PScribo.Table'" {
@@ -122,7 +124,7 @@ InModuleScope 'PScribo' {
                     }
                 }
 
-                $pscriboDocument.Header.FirstPageHeader.Sections.Type | Should Be 'PScribo.Table'
+                $pscriboDocument.Header.FirstPageHeader.Sections.Type | Should -Be 'PScribo.Table'
             }
         }
     }

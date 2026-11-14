@@ -9,14 +9,16 @@ InModuleScope 'PScribo' {
     Describe 'Plugins\Html\Out-HtmlBlankLine' {
 
         ## Scaffold new document to initialise options/styles
-        $pscriboDocument = Document -Name 'Test' -ScriptBlock { };
+        BeforeAll {
+            $pscriboDocument = Document -Name 'Test' -ScriptBlock { }
+        };
 
-        It 'creates a single <br /> html tag' {
-            BlankLine | Out-HtmlBlankLine | Should BeExactly '<br />'
+        It 'creates a single [br /] html tag' {
+            BlankLine | Out-HtmlBlankLine | Should -BeExactly '<br />'
         }
 
-        It 'creates two <br /> html tags' {
-            BlankLine -Count 2 | Out-HtmlBlankLine | Should BeExactly '<br /><br />'
+        It 'creates two [br /] html tags' {
+            BlankLine -Count 2 | Out-HtmlBlankLine | Should -BeExactly '<br /><br />'
         }
     }
 }

@@ -8,7 +8,9 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Html\Out-HtmlDocument' {
 
-        $path = (Get-PSDrive -Name TestDrive).Root
+        BeforeAll {
+            $path = (Get-PSDrive -Name TestDrive).Root
+        }
 
         It 'warns when 7 nested sections are defined' {
             $testDocument = Document -Name 'IllegalNestedSections' -ScriptBlock {
@@ -27,7 +29,7 @@ InModuleScope 'PScribo' {
                 }
             }
 
-            { $testDocument | Out-HtmlDocument -Path $path -WarningAction Stop 3>&1 } | Should Throw '6 heading'
+            { $testDocument | Out-HtmlDocument -Path $path -WarningAction Stop 3>&1 } | Should -Throw '*6 heading*'
         }
 
         It 'calls Out-HtmlSection' {
@@ -35,7 +37,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { Section -Name 'TestSection' -ScriptBlock { } } | Out-HtmlDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-HtmlSection -Exactly 1;
+            Should -Invoke -CommandName Out-HtmlSection -Exactly -Times 1;
         }
 
         It 'calls Out-HtmlParagraph' {
@@ -43,7 +45,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { Paragraph 'TestParagraph' } | Out-HtmlDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-HtmlParagraph -Exactly 1
+            Should -Invoke -CommandName Out-HtmlParagraph -Exactly -Times 1
         }
 
         It 'calls Out-HtmlTable' {
@@ -51,7 +53,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { Get-Process | Select-Object -First 1 | Table 'TestTable' } | Out-HtmlDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-HtmlTable -Exactly 1
+            Should -Invoke -CommandName Out-HtmlTable -Exactly -Times 1
         }
 
         It 'calls Out-HtmlLineBreak' {
@@ -59,7 +61,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { LineBreak; } | Out-HtmlDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-HtmlLineBreak -Exactly 1
+            Should -Invoke -CommandName Out-HtmlLineBreak -Exactly -Times 1
         }
 
         It 'calls Out-HtmlPageBreak' {
@@ -67,7 +69,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { PageBreak; } | Out-HtmlDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-HtmlPageBreak -Exactly 1
+            Should -Invoke -CommandName Out-HtmlPageBreak -Exactly -Times 1
         }
 
         It 'calls Out-HtmlTOC' {
@@ -75,7 +77,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { TOC -Name 'TestTOC'; } | Out-HtmlDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-HtmlTOC -Exactly 1
+            Should -Invoke -CommandName Out-HtmlTOC -Exactly -Times 1
         }
 
         It 'calls Out-HtmlBlankLine' {
@@ -83,7 +85,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { BlankLine; } | Out-HtmlDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-HtmlBlankLine -Exactly 1
+            Should -Invoke -CommandName Out-HtmlBlankLine -Exactly -Times 1
         }
 
         It 'calls Out-HtmlBlankLine twice' {
@@ -91,7 +93,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { BlankLine; BlankLine; } | Out-HtmlDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-HtmlBlankLine -Exactly 3 ## Mock calls are cumalative
+            Should -Invoke -CommandName Out-HtmlBlankLine -Exactly -Times 2 ## Mock calls are cumalative
         }
     }
 }

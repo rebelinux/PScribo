@@ -9,10 +9,15 @@ InModuleScope 'PScribo' {
     Describe 'Plugins\Json\Out-JsonParagraph' {
 
         ## Scaffold document options
-        $Document = Document -Name 'TestDocument' -ScriptBlock {}
-        $script:currentPageNumber = 1
-        $pscriboDocument = $Document
-        $Options = New-PScriboJsonOption
+        BeforeAll {
+            $Document = Document -Name 'TestDocument' -ScriptBlock {}
+            $script:currentPageNumber = 1
+            $pscriboDocument = $Document
+            $Options = New-PScriboJsonOption
+        }
+        
+        
+        
 
         Context 'By pipeline' {
 
@@ -22,7 +27,7 @@ InModuleScope 'PScribo' {
 
                 $p = Paragraph $testParagraph | Out-JsonParagraph
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
             It 'adds spaces between text runs (by default)' {
@@ -34,7 +39,7 @@ InModuleScope 'PScribo' {
 
                 $p = Paragraph $testParagraph | Out-JsonParagraph
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
             It 'does not add spaces between text runs (when specified)' {
@@ -46,7 +51,7 @@ InModuleScope 'PScribo' {
 
                 $p = Paragraph $testParagraph | Out-JsonParagraph
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
         }
 
@@ -58,7 +63,7 @@ InModuleScope 'PScribo' {
 
                 $p = Out-JsonParagraph -Paragraph (Paragraph $testParagraph)
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
         }

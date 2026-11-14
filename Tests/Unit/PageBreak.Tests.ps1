@@ -7,24 +7,26 @@ InModuleScope 'PScribo' {
 
     Describe 'PageBreak' {
 
-        $pscriboDocument = Document 'ScaffoldDocument' {}
+        BeforeAll {
+            $pscriboDocument = Document 'ScaffoldDocument' {}
+        }
 
         It 'returns a PSCustomObject object' {
             $p = PageBreak
 
-            $p.GetType().Name | Should Be 'PSCustomObject'
+            $p.GetType().Name | Should -Be 'PSCustomObject'
         }
 
         It 'creates a PScribo.PageBreak type' {
             $p = PageBreak
 
-            $p.Type | Should Be 'PScribo.PageBreak'
+            $p.Type | Should -Be 'PScribo.PageBreak'
         }
 
         It 'creates page break with no parameters' {
             $p = PageBreak
 
-            $p.Id | Should Not Be $null
+            $p.Id | Should -Not -Be $null
         }
 
         It 'creates page break by named -Id parameter' {
@@ -32,7 +34,7 @@ InModuleScope 'PScribo' {
 
             $p = PageBreak -Id $id
 
-            $p.Id | Should Be $id
+            $p.Id | Should -Be $id
         }
 
         It 'creates page break by positional -Id parameter' {
@@ -40,7 +42,7 @@ InModuleScope 'PScribo' {
 
             $p = PageBreak $id
 
-            $p.Id | Should Be $id
+            $p.Id | Should -Be $id
         }
     }
 }

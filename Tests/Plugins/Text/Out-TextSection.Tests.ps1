@@ -8,13 +8,16 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Text\Out-TextSection' {
 
-        $Document = Document -Name 'TestDocument' -ScriptBlock { }
-        $pscriboDocument = $Document
+        BeforeAll {
+            $Document = Document -Name 'TestDocument' -ScriptBlock { }
+            $pscriboDocument = $Document
+        }
+        
 
         It 'outputs indented section (#73)' {
             $result = Section -Name TestSection -ScriptBlock { } -Tabs 2 | Out-TextSection
 
-            $result -match '^\r?\n        ' | Should Be $true
+            $result -match '^\r?\n        ' | Should -Be $true
         }
 
         It 'calls Out-TextParagraph' {
@@ -22,7 +25,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { Paragraph 'TestParagraph' } | Out-TextSection
 
-            Assert-MockCalled -CommandName Out-TextParagraph -Exactly 1
+            Should -Invoke -CommandName Out-TextParagraph -Exactly -Times 1
         }
 
         It 'calls Out-TextParagraph twice' {
@@ -30,7 +33,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { Paragraph 'TestParagraph'; Paragraph 'TestParagraph'; } | Out-TextSection
 
-            Assert-MockCalled -CommandName Out-TextParagraph -Exactly 3
+            Should -Invoke -CommandName Out-TextParagraph -Exactly -Times 2
         }
 
         It 'calls Out-TextTable' {
@@ -38,7 +41,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { Get-Process | Select-Object -First 3 | Table TestTable } | Out-TextSection
 
-            Assert-MockCalled -CommandName Out-TextTable -Exactly 1
+            Should -Invoke -CommandName Out-TextTable -Exactly -Times 1
         }
 
         It 'calls Out-TextPageBreak' {
@@ -46,7 +49,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { PageBreak } | Out-TextSection
 
-            Assert-MockCalled -CommandName Out-TextPageBreak -Exactly 1
+            Should -Invoke -CommandName Out-TextPageBreak -Exactly -Times 1
         }
 
          It 'calls Out-TextLineBreak' {
@@ -54,7 +57,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { LineBreak } | Out-TextSection
 
-            Assert-MockCalled -CommandName Out-TextLineBreak -Exactly 1
+            Should -Invoke -CommandName Out-TextLineBreak -Exactly -Times 1
         }
 
         It 'calls Out-TextBlankLine' {
@@ -62,7 +65,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { BlankLine } | Out-TextSection
 
-            Assert-MockCalled -CommandName Out-TextBlankLine -Exactly 1
+            Should -Invoke -CommandName Out-TextBlankLine -Exactly -Times 1
         }
 
         It 'warns on call Out-TextTOC' {
@@ -70,7 +73,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { TOC 'TestTOC' } | Out-TextSection -WarningAction SilentlyContinue
 
-            Assert-MockCalled Out-TextTOC -Exactly 0
+            Should -Invoke -CommandName Out-TextTOC -Exactly -Times 0
         }
 
         It 'calls nested Out-TextSection' {
@@ -79,7 +82,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { Section -Name SubSection { } } | Out-TextSection
 
-            Assert-MockCalled -CommandName Out-TextSection -Exactly 1
+            Should -Invoke -CommandName Out-TextSection -Exactly -Times 1
         }
     }
 }

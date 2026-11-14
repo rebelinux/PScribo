@@ -6,22 +6,29 @@ Import-Module "$moduleRoot\PScribo.psm1" -Force;
 
 InModuleScope 'PScribo' {
 
-    $isNix = $false
-    if (($PSVersionTable['PSEdition'] -eq 'Core') -and (-not $IsWindows))
-    {
-        $isNix = $true
-    }
+    
+    
 
     Describe 'Plugins\Text\Out-TextDocument' {
+        BeforeAll {
+            $isNix = $false
+            if (($PSVersionTable['PSEdition'] -eq 'Core') -and (-not $IsWindows))
+                {
+                    $isNix = $true
+                }
+        }
 
-        $path = (Get-PSDrive -Name TestDrive).Root;
+
+        BeforeAll {
+            $path = (Get-PSDrive -Name TestDrive).Root
+        };
 
         It 'calls Out-TextSection' {
             Mock -CommandName Out-TextSection
 
             Document -Name 'TestDocument' -ScriptBlock { Section -Name 'TestSection' -ScriptBlock { } } | Out-TextDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-TextSection -Exactly 1
+            Should -Invoke -CommandName Out-TextSection -Exactly -Times 1
         }
 
         It 'calls Out-TextParagraph' {
@@ -29,7 +36,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { Paragraph 'TestParagraph' } | Out-TextDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-TextParagraph -Exactly 1
+            Should -Invoke -CommandName Out-TextParagraph -Exactly -Times 1
         }
 
         It 'calls Out-TextLineBreak' {
@@ -37,7 +44,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { LineBreak; } | Out-TextDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-TextLineBreak -Exactly 1
+            Should -Invoke -CommandName Out-TextLineBreak -Exactly -Times 1
         }
 
         It 'calls Out-TextPageBreak' {
@@ -45,7 +52,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { PageBreak; } | Out-TextDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-TextPageBreak -Exactly 1
+            Should -Invoke -CommandName Out-TextPageBreak -Exactly -Times 1
         }
 
          It 'calls Out-TextTable' {
@@ -53,7 +60,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { Get-Process | Select-Object -First 1 | Table 'TestTable' } | Out-TextDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-TextTable -Exactly 1
+            Should -Invoke -CommandName Out-TextTable -Exactly -Times 1
         }
 
         It 'calls Out-TextTOC' {
@@ -61,7 +68,7 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { TOC -Name 'TestTOC'; } | Out-TextDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-TextTOC -Exactly 1
+            Should -Invoke -CommandName Out-TextTOC -Exactly -Times 1
         }
 
         It 'calls Out-TextBlankLine' {
@@ -69,13 +76,15 @@ InModuleScope 'PScribo' {
 
             Document -Name 'TestDocument' -ScriptBlock { BlankLine; } | Out-TextDocument -Path $path
 
-            Assert-MockCalled -CommandName Out-TextBlankLine -Exactly 1
+            Should -Invoke -CommandName Out-TextBlankLine -Exactly -Times 1
         }
 
         It 'calls Out-TextBlankLine twice' {
+            Mock -CommandName Out-TextBlankLine
+            
             Document -Name 'TestDocument' -ScriptBlock { BlankLine; BlankLine; } | Out-TextDocument -Path $path;
 
-            Assert-MockCalled -CommandName Out-TextBlankLine -Exactly 3 ## Mock calls are cumalative
+            Should -Invoke -CommandName Out-TextBlankLine -Exactly -Times 2 ## Mock calls are cumalative
         }
     }
 }

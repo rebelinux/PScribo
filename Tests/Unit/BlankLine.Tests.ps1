@@ -6,24 +6,26 @@ Import-Module "$moduleRoot\PScribo.psm1" -Force;
 InModuleScope 'PScribo' {
 
     Describe 'BlankLine' {
-        $pscriboDocument = Document 'ScaffoldDocument' {}
+        BeforeAll {
+            $pscriboDocument = Document 'ScaffoldDocument' {}
+        }
 
         It 'returns a PSCustomObject object' {
             $b = BlankLine
 
-            $b.GetType().Name | Should Be 'PSCustomObject'
+            $b.GetType().Name | Should -Be 'PSCustomObject'
         }
 
         It 'creates a PScribo.BlankLine type' {
             $b = BlankLine
 
-            $b.Type | Should Be 'PScribo.BlankLine'
+            $b.Type | Should -Be 'PScribo.BlankLine'
         }
 
         It 'creates blank line with no parameters' {
             $b = BlankLine
 
-            $b.LineCount | Should Be 1
+            $b.LineCount | Should -Be 1
         }
 
         It 'creates blank line by named -Count parameter' {
@@ -31,7 +33,7 @@ InModuleScope 'PScribo' {
 
             $b = BlankLine -Count $count
 
-            $b.LineCount | Should Be $count
+            $b.LineCount | Should -Be $count
         }
     }
 }

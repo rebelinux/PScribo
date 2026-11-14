@@ -1,138 +1,83 @@
-$repoRoot = (Resolve-Path "$PSScriptRoot\..\..").Path;
+$repoRoot = (Resolve-Path "$PSScriptRoot\..\..").Path
+$excludedPaths = @(
+    '.git*',
+    '.vscode',
+    'Release',
+    '*.png',
+    '*.jpg',
+    '*.docx',
+    '*.enc',
+    '*.dll',
+    'appveyor-tools',
+    'TestResults.xml',
+    'Tests',
+    'Docs',
+    'PScriboExample.*',
+    'Lib',
+    'Get-WordNumberStyle.ps1'
+)
+
+function Get-TestFiles {
+    param (
+        [Parameter(Mandatory)]
+        [string] $Path,
+
+        [string[]] $Exclude
+    )
+
+    foreach ($item in Get-ChildItem -Path $Path -Exclude $Exclude) {
+        if ($item -is [System.IO.FileInfo]) {
+            if ($item.Name -ne 'Resolve-ProgramFilesFolder.ps1') {
+                $item
+            }
+        }
+        elseif ($item -is [System.IO.DirectoryInfo]) {
+            Get-TestFiles -Path $item.FullName -Exclude $Exclude
+        }
+    }
+}
+
+$fileEncodingTestCases = @(
+    foreach ($file in Get-TestFiles -Path $repoRoot -Exclude $excludedPaths) {
+        @{
+            Path = $file.FullName
+            RelativePath = $file.FullName.Replace($repoRoot, '')
+        }
+    }
+)
 
 Describe 'Linting\FileEncoding' {
+    BeforeAll {
+        function Get-FileEncoding {
+            param (
+                [Parameter(Mandatory)]
+                [string] $Path
+            )
 
-    $excludedPaths = @(
-                        '.git*',
-                        '.vscode',
-                        'Release',
-                        '*.png',
-                        '*.jpg',
-                        '*.docx',
-                        '*.enc',
-                        '*.dll',
-                        'appveyor-tools',
-                        'TestResults.xml',
-                        'Tests',
-                        'Docs',
-                        'PScriboExample.*',
-                        'Lib'
-                        'Get-WordNumberStyle.ps1'
-                    );
-
-    function Get-FileEncoding {
-    <#
-        .SYNOPSIS
-            Gets file encoding.
-        .DESCRIPTION
-            The Get-FileEncoding function determines encoding by looking at Byte Order Mark (BOM).
-            Based on port of C# code from http://www.west-wind.com/Weblog/posts/197245.aspx
-        .OUTPUTS
-            System.Text.Encoding
-        .PARAMETER Path
-            The Path of the file that we want to check.
-        .PARAMETER DefaultEncoding
-            The Encoding to return if one cannot be inferred.
-            You may prefer to use the System's default encoding:  [System.Text.Encoding]::Default
-            List of available Encodings is available here: http://goo.gl/GDtzj7
-        .EXAMPLE
-            # This command gets ps1 files in current directory where encoding is not ASCII
-            Get-ChildItem  *.ps1 | select FullName, @{n='Encoding';e={Get-FileEncoding $_.FullName}} | where {[string]$_.Encoding -ne 'System.Text.ASCIIEncoding'}
-        .EXAMPLE
-            # Same as previous example but fixes encoding using set-content
-            Get-ChildItem  *.ps1 | select FullName, @{n='Encoding';e={Get-FileEncoding $_.FullName}} | where {[string]$_.Encoding -ne 'System.Text.ASCIIEncoding'} | foreach {(get-content $_.FullName) | set-content $_.FullName -Encoding ASCII}
-        .NOTES
-            Version History
-            v1.0   - 2010/08/10, Chad Miller - Initial release
-            v1.1   - 2010/08/16, Jason Archer - Improved pipeline support and added detection of little endian BOMs. (http://poshcode.org/2075)
-            v1.2   - 2015/02/03, VertigoRay - Adjusted to use .NET's [System.Text.Encoding Class](http://goo.gl/XQNeuc). (http://poshcode.org/5724)
-        .LINK
-            https://vertigion.com/2015/02/04/powershell-get-fileencoding/
-    #>
-        [CmdletBinding()]
-        param (
-            [Alias('PSPath')]
-            [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
-            [System.String] $Path,
-
-            [Parameter(Mandatory = $False)]
-            [System.Text.Encoding] $DefaultEncoding = [System.Text.Encoding]::ASCII
-        )
-        process
-        {
-            if ($PSVersionTable['PSEdition'] -eq 'Core')
-            {
-                ## PowerShell Core does not have -Encoding Byte
-                [System.Byte[]] $bom = Get-Content -ReadCount 4 -TotalCount 4 -Path $Path -AsByteStream
+            $bytes = [System.IO.File]::ReadAllBytes($Path)
+            if ($bytes.Length -ge 4 -and $bytes[0] -eq 0x00 -and $bytes[1] -eq 0x00 -and $bytes[2] -eq 0xFE -and $bytes[3] -eq 0xFF) {
+                return [System.Text.Encoding]::UTF32
             }
-            else
-            {
-                [System.Byte[]] $bom = Get-Content -Encoding Byte -ReadCount 4 -TotalCount 4 -Path $Path
+            if ($bytes.Length -ge 4 -and $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE -and $bytes[2] -eq 0x00 -and $bytes[3] -eq 0x00) {
+                return [System.Text.Encoding]::UTF32
             }
-            $hasEncoding = $false
-
-            foreach ($encoding in [System.Text.Encoding]::GetEncodings().GetEncoding())
-            {
-                $preamble = $encoding.GetPreamble()
-                if ($preamble)
-                {
-                    foreach ($i in 0..($preamble.Length -1))
-                    {
-                        if ($preamble[$i] -ne $bom[$i])
-                        {
-                            break
-                        }
-                        elseif ($i -eq $preamble.Length -1)
-                        {
-                            $hasEncoding = $encoding
-                        }
-                    }
-                }
+            if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+                return [System.Text.Encoding]::UTF8
+            }
+            if ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) {
+                return [System.Text.Encoding]::Unicode
+            }
+            if ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFE -and $bytes[1] -eq 0xFF) {
+                return [System.Text.Encoding]::BigEndianUnicode
             }
 
-            if (-not $hasEncoding)
-            {
-                Write-Warning -Message ($localized.NoFileEncodingFoundWarning -f $Path);
-                $hasEncoding = $DefaultEncoding
-            }
-
-            return $hasEncoding
-        } #end process
-    } #end function
-
-    function TestEncodingPath {
-        [CmdletBinding()]
-        param (
-            [Parameter(Mandatory, ValueFromPipeline)]
-            [System.String] $Path,
-
-            [System.String[]] $Exclude
-        )
-        process
-        {
-            $WarningPreference = 'SilentlyContinue'
-            Get-ChildItem -Path $Path -Exclude $Exclude |
-                ForEach-Object {
-                    if ($_ -is [System.IO.FileInfo])
-                    {
-                        if ($_.Name -ne 'Resolve-ProgramFilesFolder.ps1')
-                        {
-                            It "File '$($_.FullName.Replace($repoRoot,''))' uses UTF-8 (no BOM) encoding" {
-                                $encoding = (Get-FileEncoding -Path $_.FullName -WarningAction SilentlyContinue).HeaderName
-                                $encoding | Should Be 'us-ascii'
-                            }
-                        }
-                    }
-                    elseif ($_ -is [System.IO.DirectoryInfo])
-                    {
-                        TestEncodingPath -Path $_.FullName -Exclude $Exclude
-                    }
-                }
-        } #end process
-    } #end function
-
-    Get-ChildItem -Path $repoRoot -Exclude $excludedPaths |
-        ForEach-Object {
-            TestEncodingPath -Path $_.FullName -Exclude $excludedPaths
+            [System.Text.Encoding]::ASCII
         }
+    }
+
+    It "File '<RelativePath>' uses UTF-8 (no BOM) encoding" -ForEach $fileEncodingTestCases {
+        param ($Path)
+
+        (Get-FileEncoding -Path $Path).HeaderName | Should -Be 'us-ascii'
+    }
 }

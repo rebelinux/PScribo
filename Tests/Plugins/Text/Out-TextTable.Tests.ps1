@@ -8,20 +8,27 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Text\Out-TextTable' {
 
-        $isNix = (($PSVersionTable['PSEdition'] -eq 'Core') -and (-not $IsWindows))
+        BeforeAll {
+            $isNix = (($PSVersionTable['PSEdition'] -eq 'Core') -and (-not $IsWindows))
+            $Document = Document -Name 'TestDocument' -ScriptBlock {}
+            $script:currentPageNumber = 1
+            $pscriboDocument = $Document
+        }
 
         ## Scaffold document options
-        $Document = Document -Name 'TestDocument' -ScriptBlock {}
-        $script:currentPageNumber = 1
-        $pscriboDocument = $Document
+        
+        
+        
 
         Context 'As Table' {
 
-            $services = @(
+            BeforeAll {
+                $services = @(
                 [Ordered] @{ Name = 'TestService1'; 'Service Name' = 'Test 1'; 'Display Name' = 'Test Service 1'; }
                 [Ordered] @{ Name = 'TestService3'; 'Service Name' = 'Test 3'; 'Display Name' = 'Test Service 3'; }
                 [Ordered] @{ Name = 'TestService2'; 'Service Name' = 'Test 2'; 'Display Name' = 'Test Service 2'; }
             )
+            }
 
             It 'Default width of 120' {
                 $expected = 206
@@ -29,7 +36,7 @@ InModuleScope 'PScribo' {
 
                 $table = Table -Hashtable $services -Name 'Test Table' | Out-TextTable
 
-                $table.Length | Should Be $expected
+                $table.Length | Should -Be $expected
             }
 
             It 'Set width with of 35' {
@@ -45,18 +52,20 @@ InModuleScope 'PScribo' {
 
                     $table = Table -Hashtable $services -Name 'Test Table' | Out-TextTable
 
-                    $table.Length | Should Be $expected ## Text tables are now set to wrap.. Trailing spaces are removed (#67)
+                    $table.Length | Should -Be $expected ## Text tables are now set to wrap.. Trailing spaces are removed (#67)
                 }
             }
         }
 
         Context 'As List' {
 
-            $services = @(
+            BeforeAll {
+                $services = @(
                 [Ordered] @{ Name = 'TestService1'; 'Service Name' = 'Test 1'; 'Display Name' = 'Test Service 1'; }
                 [Ordered] @{ Name = 'TestService3'; 'Service Name' = 'Test 3'; 'Display Name' = 'Test Service 3'; }
                 [Ordered] @{ Name = 'TestService2'; 'Service Name' = 'Test 2'; 'Display Name' = 'Test Service 2'; }
             )
+            }
 
             It 'Default width of 120' {
                 $expected = 253
@@ -64,7 +73,7 @@ InModuleScope 'PScribo' {
 
                 $table = Table -Hashtable $services 'Test Table' -List | Out-TextTable
 
-                $table.Length | Should Be $expected
+                $table.Length | Should -Be $expected
             }
 
             It 'Default width of 25' {
@@ -80,7 +89,7 @@ InModuleScope 'PScribo' {
 
                     $table = Table -Hashtable $services 'Test Table' -List | Out-TextTable
 
-                    $table.Length | Should Be $expected
+                    $table.Length | Should -Be $expected
                 }
 
             }

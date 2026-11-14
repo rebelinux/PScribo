@@ -24,7 +24,7 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextTOC -TOC $Document.Sections[0]
 
-            $result | Should MatchExactly $expected
+            $result | Should -MatchExactly $expected
         }
 
         It 'adds section numbers when "EnableSectionNumbering" is enabled (#20)' {
@@ -44,7 +44,7 @@ InModuleScope 'PScribo' {
             $options = Merge-PScriboPluginOption -DocumentOptions $Document.Options -PluginOptions (New-PScriboTextOption)
             $result = Out-TextTOC -TOC $Document.Sections[0] -Verbose
 
-            $result | Should Match $expected
+            $result | Should -Match $expected
         }
 
         It 'does not add section numbers when "EnableSectionNumbering" is disabled (#20)' {
@@ -62,7 +62,7 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextTOC -TOC $Document.Sections[0] -Verbose
 
-            $result | Should Match $expected
+            $result | Should -Match $expected
         }
     }
 }

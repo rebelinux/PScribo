@@ -5,14 +5,14 @@ Import-Module -Name "$moduleRoot\PScribo.psm1" -Force
 
 InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
-    Describe -Name 'Resolve-ImageUri' -Fixture {
+    Describe -Name 'Resolve-ImageUri' {
 
         It "returns 'System.Uri' type" {
             $testPath = 'about:Blank'
 
             $result = Resolve-ImageUri -Path $testPath
 
-            $result -is [System.Uri] | Should Be $true
+            $result -is [System.Uri] | Should -Be $true
         }
     }
 }

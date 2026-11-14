@@ -8,28 +8,33 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Text\Links (external)' {
 
-        $Document = Document -Name 'Test' -ScriptBlock { }
-        $pscriboDocument = $Document
-        $Options = New-PScriboTextOption
-        $script:currentPageNumber = 1
+        BeforeAll {
+            $Document = Document -Name 'Test' -ScriptBlock { }
+            $pscriboDocument = $Document
+            $Options = New-PScriboTextOption
+            $script:currentPageNumber = 1
+        }
+        
+        
+        
 
         It 'outputs the display text followed by the uri' {
             $result = Paragraph { Text 'See'; Link 'GitHub' -Uri 'https://github.com' } | Out-TextParagraph
 
-            $result | Should BeExactly ('See GitHub > (https://github.com){0}' -f [System.Environment]::NewLine)
+            $result | Should -BeExactly ('See GitHub > (https://github.com){0}' -f [System.Environment]::NewLine)
         }
 
         It 'outputs plain text for a rejected uri' {
             $result = Paragraph { Link 'Bad' -Uri 'javascript://alert(1)' } | Out-TextParagraph
 
-            $result | Should BeExactly ('Bad{0}' -f [System.Environment]::NewLine)
+            $result | Should -BeExactly ('Bad{0}' -f [System.Environment]::NewLine)
         }
 
         It 'does not write to the host when outputting a paragraph' {
             $hostOutput = Paragraph { Text 'Hello'; Link 'GitHub' -Uri 'https://github.com' } | Out-TextParagraph 6>&1 |
                 Where-Object { $_ -is [System.Management.Automation.InformationRecord] }
 
-            @($hostOutput).Count | Should Be 0
+            @($hostOutput).Count | Should -Be 0
         }
     }
 }

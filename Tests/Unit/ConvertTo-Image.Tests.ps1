@@ -5,20 +5,22 @@ Import-Module -Name "$moduleRoot\PScribo.psm1" -Force
 
 InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
-    $testRoot = Split-Path -Path $PSScriptRoot -Parent
+    
 
-    Describe -Name 'ConvertTo-Image' -Fixture {
-        # Check if running on Unix and ImageSharp is available
+    Describe -Name 'ConvertTo-Image' {
         $Platform = if ($PSVersionTable.PSEdition -eq 'Core') {
             if ($IsLinux -or $IsMacOS) {
-                'Unix'
+                    'Unix'
+                }
+                else {
+                    'Windows'
+                }
             }
             else {
                 'Windows'
             }
-        }
-        else {
-            'Windows'
+        BeforeAll {
+            $testRoot = Split-Path -Path $PSScriptRoot -Parent
         }
 
         It "returns 'System.Drawing.Image' type" -Skip:$($Platform -eq 'Unix') {
@@ -28,7 +30,7 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
             $result = ConvertTo-Image -Bytes $testBytes
 
-            $result -is [System.Drawing.Image] | Should Be $true
+            $result -is [System.Drawing.Image] | Should -Be $true
         }
         It "returns 'SkiaSharp.SKImage' type" -Skip:$($Platform -ne 'Unix') {
             $testPath = Join-Path -Path $testRoot -ChildPath 'TestImage.jpg'
@@ -37,7 +39,7 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
             $result = ConvertTo-Image -Bytes $testBytes
 
-            $result -is [SkiaSharp.SKImage] | Should Be $true
+            $result -is [SkiaSharp.SKImage] | Should -Be $true
         }
 
     }

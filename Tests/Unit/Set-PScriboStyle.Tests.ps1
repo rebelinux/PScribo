@@ -8,8 +8,10 @@ InModuleScope 'PScribo' {
 
     Describe 'Set-PScriboStyle' {
 
-        $pscriboDocument = Document 'ScaffoldDocument' {}
-        Style -Name 'MyCustomStyle' -Size 16
+        BeforeAll {
+            $pscriboDocument = Document 'ScaffoldDocument' {}
+            Style -Name 'MyCustomStyle' -Size 16
+        }
 
         Context 'By Row' {
 
@@ -17,13 +19,13 @@ InModuleScope 'PScribo' {
                 ($service = Get-Process | Select-Object -Last 1) |
                     Set-Style -Style 'MyCustomStyle'
 
-                $service.__Style | Should Be 'MyCustomStyle'
+                $service.__Style | Should -Be 'MyCustomStyle'
             }
             It 'sets row style by pipeline' {
                 $service = Get-Process | Select-Object -Last 1 |
                     Set-Style -Style 'MyCustomStyle' -PassThru
 
-                $service.__Style | Should Be 'MyCustomStyle'
+                $service.__Style | Should -Be 'MyCustomStyle'
             }
         }
 
@@ -33,29 +35,29 @@ InModuleScope 'PScribo' {
                 ($service = Get-Process | Select-Object -Last 1) |
                     Set-Style -Style 'MyCustomStyle' -Property SI
 
-                $service.SI__Style | Should Be 'MyCustomStyle'
+                $service.SI__Style | Should -Be 'MyCustomStyle'
             }
 
             It 'sets cell style on a single property by pipeline' {
                 $service = Get-Process | Select-Object -Last 1 |
                     Set-Style -Style 'MyCustomStyle' -Property SI -PassThru
 
-                $service.SI__Style | Should Be 'MyCustomStyle'
+                $service.SI__Style | Should -Be 'MyCustomStyle'
             }
             It 'sets cell style on a multiple properties by reference' {
                 ($service = Get-Process | Select-Object -Last 1) |
                     Set-Style -Style 'MyCustomStyle' -Property SI,ProcessName
 
-                $service.SI__Style | Should Be 'MyCustomStyle'
-                $service.ProcessName__Style | Should Be 'MyCustomStyle'
+                $service.SI__Style | Should -Be 'MyCustomStyle'
+                $service.ProcessName__Style | Should -Be 'MyCustomStyle'
             }
 
             It 'sets cell style on a multiple properties by pipeline' {
                 $service = Get-Process | Select-Object -Last 1 |
                     Set-Style -Style 'MyCustomStyle' -Property SI,ProcessName -PassThru
 
-                $service.SI__Style | Should Be 'MyCustomStyle'
-                $service.ProcessName__Style | Should Be 'MyCustomStyle'
+                $service.SI__Style | Should -Be 'MyCustomStyle'
+                $service.ProcessName__Style | Should -Be 'MyCustomStyle'
             }
         }
     }

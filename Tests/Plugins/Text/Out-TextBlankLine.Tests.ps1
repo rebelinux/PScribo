@@ -9,14 +9,16 @@ InModuleScope 'PScribo' {
     Describe 'Plugins\Text\Out-TextBlankLine' {
 
         ## Scaffold document options
-        $pscriboDocument = Document -Name 'TestDocument' -ScriptBlock {};
+        BeforeAll {
+            $pscriboDocument = Document -Name 'TestDocument' -ScriptBlock {}
+        };
 
         It 'Defaults to a single blank line' {
             $expected = [System.Environment]::NewLine
 
             $l = BlankLine | Out-TextBlankLine
 
-            $l | Should Be $expected
+            $l | Should -Be $expected
         }
 
         It 'Creates 3 blank lines' {
@@ -24,7 +26,7 @@ InModuleScope 'PScribo' {
 
             $l = BlankLine -Count 3 | Out-TextBlankLine
 
-            $l | Should Be $expected
+            $l | Should -Be $expected
         }
     }
 }

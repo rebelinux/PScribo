@@ -9,22 +9,26 @@ InModuleScope 'PScribo' {
     Describe 'Plugins\Html\Out-HtmlParagraph' {
 
         ## Scaffold new document to initialise options/styles
-        $pscriboDocument = Document -Name 'Test' -ScriptBlock { }
-        $Document = $pscriboDocument
-        $script:currentPageNumber = 1
+        BeforeAll {
+            $pscriboDocument = Document -Name 'Test' -ScriptBlock { }
+            $Document = $pscriboDocument
+            $script:currentPageNumber = 1
+        }
+        
+        
 
         Context 'By Named Parameter' {
 
             It 'creates paragraph with no style and new line' {
-                Paragraph 'Test paragraph.' | Out-HtmlParagraph | Should BeExactly "<div>Test paragraph.</div>"
+                Paragraph 'Test paragraph.' | Out-HtmlParagraph | Should -BeExactly "<div>Test paragraph.</div>"
             }
 
             It 'creates paragraph with custom name/id' {
-                Paragraph -Name 'Test' -Text 'Test paragraph.' | Out-HtmlParagraph | Should BeExactly "<div>Test paragraph.</div>"
+                Paragraph -Name 'Test' -Text 'Test paragraph.' | Out-HtmlParagraph | Should -BeExactly "<div>Test paragraph.</div>"
             }
 
             It 'creates paragraph with named -Style parameter' {
-                Paragraph 'Test paragraph.' -Style Named | Out-HtmlParagraph | Should BeExactly "<div class=`"Named`">Test paragraph.</div>"
+                Paragraph 'Test paragraph.' -Style Named | Out-HtmlParagraph | Should -BeExactly "<div class=`"Named`">Test paragraph.</div>"
             }
 
             It 'encodes HTML paragraph content' {
@@ -32,7 +36,7 @@ InModuleScope 'PScribo' {
 
                 $result = Paragraph 'Embedded <br />' | Out-HtmlParagraph
 
-                $result | Should BeExactly $expected
+                $result | Should -BeExactly $expected
             }
 
             It 'creates paragraph with embedded new line' {
@@ -41,7 +45,7 @@ InModuleScope 'PScribo' {
 
                 $result = Paragraph $paragraphText | Out-HtmlParagraph
 
-                $result | Should BeExactly $expected
+                $result | Should -BeExactly $expected
             }
 
             It 'adds spaces between text runs (by default)' {
@@ -53,7 +57,7 @@ InModuleScope 'PScribo' {
 
                 $result = Paragraph $paragraph | Out-HtmlParagraph
 
-                $result | Should BeExactly $expected
+                $result | Should -BeExactly $expected
             }
 
             It 'does not add spaces between text runs (when specified)' {
@@ -65,7 +69,7 @@ InModuleScope 'PScribo' {
 
                 $result = Paragraph $paragraph | Out-HtmlParagraph
 
-                $result | Should BeExactly $expected
+                $result | Should -BeExactly $expected
             }
 
         } #end context By Named Parameter
@@ -77,7 +81,7 @@ InModuleScope 'PScribo' {
             $null = (Paragraph 'Test paragraph.' -Size 11 | Out-HtmlParagraph) -match '(?<=style=").+(?=">)'
             $fontSize = ($Matches[0]).Trim(';')
 
-            ($fontSize.Split(':').Trim())[1] | Should BeExactly '0.92rem'
+            ($fontSize.Split(':').Trim())[1] | Should -BeExactly '0.92rem'
             [System.Threading.Thread]::CurrentThread.CurrentCulture = $currentCulture
         }
 

@@ -14,7 +14,7 @@ InModuleScope 'PScribo' {
                 PluginOptions = @{ }
             }
 
-            { Merge-PScriboPluginOption @mergePScriboPluginOptionParams } | Should Not Throw
+            { Merge-PScriboPluginOption @mergePScriboPluginOptionParams } | Should -Not -Throw
         }
 
         It 'does not throw with $null hashtable(s)' {
@@ -24,7 +24,7 @@ InModuleScope 'PScribo' {
                 PluginOptions = $null
             }
 
-            { Merge-PScriboPluginOption @mergePScriboPluginOptionParams } | Should Not Throw
+            { Merge-PScriboPluginOption @mergePScriboPluginOptionParams } | Should -Not -Throw
         }
 
         It 'merges document options, default plugin and specified plugin options' {
@@ -36,7 +36,7 @@ InModuleScope 'PScribo' {
 
             $result =  Merge-PScriboPluginOption @mergePScriboPluginOptionParams
 
-            $result.Keys.Count | Should Be 3
+            $result.Keys.Count | Should -Be 3
         }
 
         It 'returns document options by default' {
@@ -46,8 +46,8 @@ InModuleScope 'PScribo' {
 
             $result =  Merge-PScriboPluginOption @mergePScriboPluginOptionParams
 
-            $result.Keys.Count | Should Be 1
-            $result['TestOption'] | Should Be 'Document'
+            $result.Keys.Count | Should -Be 1
+            $result['TestOption'] | Should -Be 'Document'
         }
 
         It 'overwrites document options with default plugin options' {
@@ -58,8 +58,8 @@ InModuleScope 'PScribo' {
 
             $result =  Merge-PScriboPluginOption @mergePScriboPluginOptionParams
 
-            $result.Keys.Count | Should Be 1
-            $result['TestOption'] | Should Be 'DefaultPlugin'
+            $result.Keys.Count | Should -Be 1
+            $result['TestOption'] | Should -Be 'DefaultPlugin'
         }
 
         It 'overwrites document options and default plugin options with specified plugin options' {
@@ -71,8 +71,8 @@ InModuleScope 'PScribo' {
 
             $result =  Merge-PScriboPluginOption @mergePScriboPluginOptionParams
 
-            $result.Keys.Count | Should Be 1
-            $result['TestOption'] | Should Be 'Plugin'
+            $result.Keys.Count | Should -Be 1
+            $result['TestOption'] | Should -Be 'Plugin'
         }
     }
 }

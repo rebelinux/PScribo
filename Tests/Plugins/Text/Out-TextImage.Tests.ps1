@@ -16,7 +16,7 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextImage -Image $testImage
 
-            $result -match $expected | Should Be $true
+            $result -match $expected | Should -Be $true
         }
     }
 }

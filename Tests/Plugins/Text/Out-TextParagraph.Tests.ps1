@@ -9,10 +9,15 @@ InModuleScope 'PScribo' {
     Describe 'Plugins\Text\Out-TextParagraph' {
 
         ## Scaffold document options
-        $Document = Document -Name 'TestDocument' -ScriptBlock {}
-        $script:currentPageNumber = 1
-        $pscriboDocument = $Document
-        $Options = New-PScriboTextOption
+        BeforeAll {
+            $Document = Document -Name 'TestDocument' -ScriptBlock {}
+            $script:currentPageNumber = 1
+            $pscriboDocument = $Document
+            $Options = New-PScriboTextOption
+        }
+        
+        
+        
 
         Context 'By pipeline' {
 
@@ -22,7 +27,7 @@ InModuleScope 'PScribo' {
 
                 $p = Paragraph $testParagraph | Out-TextParagraph
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
             It 'Paragraph wraps at 10 characters with new line' {
@@ -32,7 +37,7 @@ InModuleScope 'PScribo' {
 
                 $p = Paragraph $testParagraph | Out-TextParagraph
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
             It 'Paragraph breaks on space with new line' {
@@ -42,7 +47,7 @@ InModuleScope 'PScribo' {
 
                 $p = Paragraph $testParagraph | Out-TextParagraph
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
             It 'adds spaces between text runs (by default)' {
@@ -54,7 +59,7 @@ InModuleScope 'PScribo' {
 
                 $p = Paragraph $testParagraph | Out-TextParagraph
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
             It 'does not add spaces between text runs (when specified)' {
@@ -66,7 +71,7 @@ InModuleScope 'PScribo' {
 
                 $p = Paragraph $testParagraph | Out-TextParagraph
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
         }
@@ -79,7 +84,7 @@ InModuleScope 'PScribo' {
 
                 $p = Out-TextParagraph -Paragraph (Paragraph $testParagraph)
 
-                $p | Should BeExactly $expected
+                $p | Should -BeExactly $expected
             }
 
         }

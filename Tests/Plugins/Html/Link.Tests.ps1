@@ -8,27 +8,31 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Html\Links (external)' {
 
-        $Document = Document -Name 'Test' -ScriptBlock { }
-        $pscriboDocument = $Document
-        $script:currentPageNumber = 1
+        BeforeAll {
+            $Document = Document -Name 'Test' -ScriptBlock { }
+            $pscriboDocument = $Document
+            $script:currentPageNumber = 1
+        }
+        
+        
 
         It 'outputs an anchor for an external link' {
             $result = Paragraph { Text 'See'; Link 'GitHub' -Uri 'https://github.com' } | Out-HtmlParagraph
 
-            $result | Should BeExactly '<div>See <a href="https://github.com" target="_blank" rel="noopener">GitHub</a></div>'
+            $result | Should -BeExactly '<div>See <a href="https://github.com" target="_blank" rel="noopener">GitHub</a></div>'
         }
 
         It 'html encodes the display text and the uri' {
             $result = Paragraph { Link 'A <b> & B' -Uri 'https://example.com/?a=1&b="2"' } | Out-HtmlParagraph
 
-            $result | Should Match 'href="https://example.com/\?a=1&amp;b=&quot;2&quot;"'
-            $result | Should Match '>A &lt;b&gt; &amp; B</a>'
+            $result | Should -Match 'href="https://example.com/\?a=1&amp;b=&quot;2&quot;"'
+            $result | Should -Match '>A &lt;b&gt; &amp; B</a>'
         }
 
         It 'does not render a javascript: link' {
             $result = Paragraph { Link 'Click' -Uri 'javascript://alert(1)' } | Out-HtmlParagraph
 
-            $result | Should BeExactly '<div>Click</div>'
+            $result | Should -BeExactly '<div>Click</div>'
         }
 
         It 'does not render a link with an unlisted scheme in a table cell' {
@@ -36,8 +40,8 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlTable -Table $table
 
-            $result | Should Not Match '<a '
-            $result | Should Match '<td>Click</td>'
+            $result | Should -Not -Match '<a '
+            $result | Should -Match '<td>Click</td>'
         }
 
         It 'outputs an anchor in a table cell' {
@@ -45,11 +49,11 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlTable -Table $table
 
-            $result | Should Match '<td>See <a href="https://github.com" target="_blank" rel="noopener">GitHub</a> now</td>'
+            $result | Should -Match '<td>See <a href="https://github.com" target="_blank" rel="noopener">GitHub</a> now</td>'
         }
 
         It 'still encodes text without tokens' {
-            (Paragraph 'Embedded <br />' | Out-HtmlParagraph) | Should BeExactly '<div>Embedded &lt;br /&gt;</div>'
+            (Paragraph 'Embedded <br />' | Out-HtmlParagraph) | Should -BeExactly '<div>Embedded &lt;br /&gt;</div>'
         }
     }
 }

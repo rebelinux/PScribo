@@ -9,28 +9,30 @@ InModuleScope 'PScribo' {
     Describe 'Plugins\Html\Get-HtmlStyle' {
 
         ## Scaffold new document to initialise options/styles
-        $pscriboDocument = Document -Name 'Test' -ScriptBlock { }
+        BeforeAll {
+            $pscriboDocument = Document -Name 'Test' -ScriptBlock { }
+        }
 
         Context 'By named parameter' {
 
             It 'creates single font default style' {
                 Style -Name Test -Font Helvetica
                 $fontFamily = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-family:*'
-                ($fontFamily.Split(':').Trim())[1] | Should BeExactly "'Helvetica'"
+                ($fontFamily.Split(':').Trim())[1] | Should -BeExactly "'Helvetica'"
                 $fontSize = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-size:*'
-                ($fontSize.Split(':').Trim())[1] | Should BeExactly '0.92rem'
+                ($fontSize.Split(':').Trim())[1] | Should -BeExactly '0.92rem'
                 $fontWeight = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-weight:*'
-                ($fontWeight.Split(':').Trim())[1] | Should BeExactly 'normal'
+                ($fontWeight.Split(':').Trim())[1] | Should -BeExactly 'normal'
                 $fontStyle = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-style:*'
-                $fontStyle | Should BeNullOrEmpty
+                $fontStyle | Should -BeNullOrEmpty
                 $textDecoration = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'text-decoration:*'
-                $textDecoration | Should BeNullOrEmpty
+                $textDecoration | Should -BeNullOrEmpty
                 $textAlign = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'text-align:*'
-                ($textAlign.Split(':').Trim())[1] | Should BeExactly 'left'
+                ($textAlign.Split(':').Trim())[1] | Should -BeExactly 'left'
                 $color = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'color:*'
-                ($color.Split(':').Trim())[1] | Should BeExactly '#000000'
+                ($color.Split(':').Trim())[1] | Should -BeExactly '#000000'
                 $backgroundColor = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'background-color:*'
-                $backgroundColor | Should BeNullOrEmpty
+                $backgroundColor | Should -BeNullOrEmpty
             }
 
             It 'uses invariant culture font size (#6)' {
@@ -41,7 +43,7 @@ InModuleScope 'PScribo' {
                 $fontSize = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-size:*'
 
                 [System.Threading.Thread]::CurrentThread.CurrentCulture = $currentCulture
-                ($fontSize.Split(':').Trim())[1] | Should BeExactly '0.92rem'
+                ($fontSize.Split(':').Trim())[1] | Should -BeExactly '0.92rem'
             }
 
             It 'creates multiple font default style' {
@@ -49,7 +51,7 @@ InModuleScope 'PScribo' {
 
                 $fontFamily = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-family:*'
 
-                ($fontFamily.Split(':').Trim())[1] | Should BeExactly "'Helvetica','Arial','Sans-Serif'"
+                ($fontFamily.Split(':').Trim())[1] | Should -BeExactly "'Helvetica','Arial','Sans-Serif'"
             }
 
             It 'creates single 12pt font' {
@@ -57,7 +59,7 @@ InModuleScope 'PScribo' {
 
                 $fontSize = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-size:*'
 
-                ($fontSize.Split(':').Trim())[1] | Should BeExactly '1.00rem'
+                ($fontSize.Split(':').Trim())[1] | Should -BeExactly '1.00rem'
             }
 
             It 'creates bold font style' {
@@ -65,7 +67,7 @@ InModuleScope 'PScribo' {
 
                 $fontWeight = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-weight:*'
 
-                ($fontWeight.Split(':').Trim())[1] | Should BeExactly 'bold'
+                ($fontWeight.Split(':').Trim())[1] | Should -BeExactly 'bold'
             }
 
             It 'creates center aligned font style' {
@@ -73,7 +75,7 @@ InModuleScope 'PScribo' {
 
                 $textAlign = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'text-align:*'
 
-                ($textAlign.Split(':').Trim())[1] | Should BeExactly 'center'
+                ($textAlign.Split(':').Trim())[1] | Should -BeExactly 'center'
             }
 
             It 'creates right aligned font style' {
@@ -81,7 +83,7 @@ InModuleScope 'PScribo' {
 
                 $textAlign = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'text-align:*'
 
-                ($textAlign.Split(':').Trim())[1] | Should BeExactly 'right'
+                ($textAlign.Split(':').Trim())[1] | Should -BeExactly 'right'
             }
 
             It 'creates justified font style' {
@@ -89,7 +91,7 @@ InModuleScope 'PScribo' {
 
                 $textAlign = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'text-align:*'
 
-                ($textAlign.Split(':').Trim())[1] | Should BeExactly 'justify'
+                ($textAlign.Split(':').Trim())[1] | Should -BeExactly 'justify'
             }
 
             It 'creates underline font style' {
@@ -97,7 +99,7 @@ InModuleScope 'PScribo' {
 
                 $textDecoration = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'text-decoration:*'
 
-                ($textDecoration.Split(':').Trim())[1] | Should BeExactly 'underline'
+                ($textDecoration.Split(':').Trim())[1] | Should -BeExactly 'underline'
             }
 
             It 'creates italic font style' {
@@ -105,7 +107,7 @@ InModuleScope 'PScribo' {
 
                 $fontStyle = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'font-style:*'
 
-                ($fontStyle.Split(':').Trim())[1] | Should BeExactly 'italic'
+                ($fontStyle.Split(':').Trim())[1] | Should -BeExactly 'italic'
             }
 
             It 'creates colored font style' {
@@ -113,7 +115,7 @@ InModuleScope 'PScribo' {
 
                 $color = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'color:*'
 
-                ($color.Split(':').Trim())[1] | Should BeExactly '#abc'
+                ($color.Split(':').Trim())[1] | Should -BeExactly '#abc'
             }
 
             It 'creates colored font style with #' {
@@ -121,7 +123,7 @@ InModuleScope 'PScribo' {
 
                 $color = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'color:*'
 
-                ($color.Split(':').Trim())[1] | Should BeExactly '#abc'
+                ($color.Split(':').Trim())[1] | Should -BeExactly '#abc'
             }
 
             It 'creates background colored font style' {
@@ -129,7 +131,7 @@ InModuleScope 'PScribo' {
 
                 $backgroundColor = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'background-color:*'
 
-                ($backgroundColor.Split(':').Trim())[1] | Should BeExactly '#def'
+                ($backgroundColor.Split(':').Trim())[1] | Should -BeExactly '#def'
             }
 
             It 'creates background colored font without #' {
@@ -137,7 +139,7 @@ InModuleScope 'PScribo' {
 
                 $backgroundColor = ((Get-HtmlStyle -Style $pscriboDocument.Styles['Test']).Split(';').Trim()) -like 'background-color:*'
 
-                ($backgroundColor.Split(':').Trim())[1] | Should BeExactly '#def'
+                ($backgroundColor.Split(':').Trim())[1] | Should -BeExactly '#def'
             }
 
         } #end context By Named Parameter

@@ -8,10 +8,15 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Html\Out-HtmlImage' {
 
-        foreach ($alignment in 'Left','Center','Right')
-        {
+        It "aligns image '<Alignment>'" -ForEach @(
+            @{ Alignment = 'Left' }
+            @{ Alignment = 'Center' }
+            @{ Alignment = 'Right' }
+        ) {
+            param ($Alignment)
+
             $testImage = [PSCustomObject] @{
-                Align    = $alignment
+                Align    = $Alignment
                 Bytes    = [byte[]] @(0,1,2,3)
                 MimeType = 'image/jpg'
                 Text     = 'Dummy Image'
@@ -19,18 +24,16 @@ InModuleScope 'PScribo' {
                 Width    = 0
             }
 
-            It "aligns image '$alignment'" {
-                $expected = '<div align="{0}">' -f $alignment
+            $expected = '<div align="{0}">' -f $Alignment
 
-                $result = Out-HtmlImage -Image $testImage
+            $result = Out-HtmlImage -Image $testImage
 
-                $result -match $expected | Should Be $true
-            }
+            $result -match $expected | Should -Be $true
         }
 
         It 'sets image Mime type' {
             $testImage = [PSCustomObject] @{
-                Align    = $alignment
+                Align    = 'Left'
                 Bytes    = [byte[]] @(0,1,2,3)
                 MimeType = 'image/jpg'
                 Text     = 'Dummy Image'
@@ -41,12 +44,12 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlImage -Image $testImage
 
-            $result -match $expected | Should Be $true
+            $result -match $expected | Should -Be $true
         }
 
         It 'sets image height' {
             $testImage = [PSCustomObject] @{
-                Align    = $alignment
+                Align    = 'Left'
                 Bytes    = [byte[]] @(0,1,2,3)
                 MimeType = 'image/jpg'
                 Text     = 'Dummy Image'
@@ -57,12 +60,12 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlImage -Image $testImage
 
-            $result -match $expected | Should Be $true
+            $result -match $expected | Should -Be $true
         }
 
         It 'sets image width' {
             $testImage = [PSCustomObject] @{
-                Align    = $alignment
+                Align    = 'Left'
                 Bytes    = [byte[]] @(0,1,2,3)
                 MimeType = 'image/jpg'
                 Text     = 'Dummy Image'
@@ -73,12 +76,12 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlImage -Image $testImage
 
-            $result -match $expected | Should Be $true
+            $result -match $expected | Should -Be $true
         }
 
         It 'adds alttext to image' {
             $testImage = [PSCustomObject] @{
-                Align    = $alignment
+                Align    = 'Left'
                 Bytes    = [byte[]] @(0,1,2,3)
                 MimeType = 'image/jpg'
                 Text     = 'Dummy Image'
@@ -89,7 +92,7 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlImage -Image $testImage
 
-            $result -match $expected | Should Be $true
+            $result -match $expected | Should -Be $true
         }
     }
 }

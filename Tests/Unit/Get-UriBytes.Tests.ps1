@@ -5,9 +5,13 @@ Import-Module -Name "$moduleRoot\PScribo.psm1" -Force
 
 InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
-    $testRoot = Split-Path -Path $PSScriptRoot -Parent;
+    ;
 
-    Describe -Name 'Get-UriBytes' -Fixture {
+    Describe -Name 'Get-UriBytes' {
+        BeforeAll {
+            $testRoot = Split-Path -Path $PSScriptRoot -Parent
+        }
+
 
         It "returns 'System.Byte[]' type" {
 
@@ -16,8 +20,8 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
 
             $result = Get-UriBytes -Uri $testUri
 
-            $result -is [System.Object[]] | Should Be $true
-            $result[0] -is [System.Byte] | Should Be $true
+            $result -is [System.Object[]] | Should -Be $true
+            $result[0] -is [System.Byte] | Should -Be $true
         }
 
     }

@@ -6,32 +6,36 @@ Import-Module "$moduleRoot\PScribo.psm1" -Force;
 
 InModuleScope 'PScribo' {
 
-    function GetMatch
-    {
-        [CmdletBinding()]
-        param
-        (
-            [System.String] $String,
-            [System.Management.Automation.SwitchParameter] $Complete
-        )
-        Write-Verbose "Pre Match : '$String'"
-        $matchString = $String.Replace('/','\/')
-        if (-not $String.StartsWith('^'))
-        {
-            $matchString = $matchString.Replace('[..]','[\s\S]+')
-            $matchString = $matchString.Replace('[??]','([\s\S]+)?')
-            if ($Complete)
-            {
-                $matchString = '^<w:test xmlns:w="http:\/\/schemas.openxmlformats.org\/wordprocessingml\/2006\/main">{0}<\/w:test>$' -f $matchString
-            }
-        }
-        Write-Verbose "Post Match: '$matchString'"
-        return $matchString
-    }
+    
 
     Describe 'Plugins\Word\Out-WordParagraph' {
+        BeforeAll {
+            function GetMatch
+                {
+                    [CmdletBinding()]
+                    param
+                    (
+                        [System.String] $String,
+                        [System.Management.Automation.SwitchParameter] $Complete
+                    )
+                    Write-Verbose "Pre Match : '$String'"
+                    $matchString = $String.Replace('/','\/')
+                    if (-not $String.StartsWith('^'))
+                    {
+                        $matchString = $matchString.Replace('[..]','[\s\S]+')
+                        $matchString = $matchString.Replace('[??]','([\s\S]+)?')
+                        if ($Complete)
+                        {
+                            $matchString = '^<w:test xmlns:w="http:\/\/schemas.openxmlformats.org\/wordprocessingml\/2006\/main">{0}<\/w:test>$' -f $matchString
+                        }
+                    }
+                    Write-Verbose "Post Match: '$matchString'"
+                    return $matchString
+                }
+        }
 
-        It 'outputs paragraph "<w:p>[..]></w:p>"' {
+
+        It 'outputs paragraph "[w:p][..]>[/w:p]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph'
             }
@@ -39,10 +43,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '<w:p>[..]></w:p>'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs paragraph properties "<w:p><w:pPr>[..]></w:pPr[..]></w:p>"' {
+        It 'outputs paragraph properties "[w:p][w:pPr][..]>[/w:pPr[..]][/w:p]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph'
             }
@@ -50,10 +54,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '<w:p><w:pPr>[..]></w:pPr[..]></w:p>'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs indented paragraph "<w:p><w:pPr><w:ind w:left="1440" />[..]</w:p>"' {
+        It 'outputs indented paragraph "[w:p][w:pPr][w:ind w:left="1440" /][..][/w:p]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Tabs 2
             }
@@ -61,10 +65,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '<w:p><w:pPr><w:ind w:left="1440" />[..]</w:p>'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs paragraph style "<w:p><w:pPr><w:pStyle w:val="[..]" />[..]</w:p>"' {
+        It 'outputs paragraph style "[w:p][w:pPr][w:pStyle w:val="[..]" /][..][/w:p]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Style Heading3
             }
@@ -72,10 +76,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '<w:p><w:pPr><w:pStyle w:val="Heading3" />[..]</w:p>'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run "[..]<w:r>[..]></w:r>[..]"' {
+        It 'outputs run "[..][w:r][..]>[/w:r][..]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Style Heading3
             }
@@ -83,10 +87,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '[..]<w:r>[..]></w:r>[..]'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs empty run properties "[..]<w:r><w:rPr />[..]></w:r>[..]"' {
+        It 'outputs empty run properties "[..][w:r][w:rPr /][..]>[/w:r][..]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Style Heading3
             }
@@ -94,10 +98,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '[..]<w:r><w:rPr />[..]></w:r>[..]'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run property font "[..]<w:rPr><w:rFonts w:ascii="[..]" w:hAnsi="[..]" /></w:rPr>[..]"' {
+        It 'outputs run property font "[..][w:rPr][w:rFonts w:ascii="[..]" w:hAnsi="[..]" /][/w:rPr][..]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Font Ariel
             }
@@ -105,10 +109,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '[..]<w:rPr><w:rFonts w:ascii="Ariel" w:hAnsi="Ariel" /></w:rPr>[..]'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run property font size "[..]<w:rPr><w:sz w:val="[..]" /></w:rPr>[..]"' {
+        It 'outputs run property font size "[..][w:rPr][w:sz w:val="[..]" /][/w:rPr][..]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Size 10
             }
@@ -116,10 +120,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '[..]<w:rPr><w:sz w:val="20" /></w:rPr>[..]'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run property bold "[..]<w:rPr><w:b /></w:rPr>[..]"' {
+        It 'outputs run property bold "[..][w:rPr][w:b /][/w:rPr][..]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Bold
             }
@@ -127,10 +131,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '[..]<w:rPr><w:b /></w:rPr>[..]'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run property italic "[..]<w:rPr><w:i /></w:rPr>[..]"' {
+        It 'outputs run property italic "[..][w:rPr][w:i /][/w:rPr][..]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Italic
             }
@@ -138,10 +142,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '[..]<w:rPr><w:i /></w:rPr>[..]'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run property underline "[..]<w:rPr><w:u w:val="single" /></w:rPr>[..]"' {
+        It 'outputs run property underline "[..][w:rPr][w:u w:val="single" /][/w:rPr][..]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Underline
             }
@@ -149,10 +153,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '[..]<w:rPr><w:u w:val="single" /></w:rPr>[..]'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run property colour "[..]<w:rPr><w:color w:val="112233" /></w:rPr>[..]"' {
+        It 'outputs run property colour "[..][w:rPr][w:color w:val="112233" /][/w:rPr][..]"' {
             $document = Document -Name 'TestDocument' {
                 Paragraph 'Test paragraph' -Color 123
             }
@@ -160,10 +164,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch '[..]<w:rPr><w:color w:val="112233" /></w:rPr>[..]'
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run text "[..]<w:r>[..]<w:t>{0}</w:t>[..]" using "Name" property' {
+        It 'outputs run text "[..][w:r][..][w:t]{0}[/w:t][..]" using "Name" property' {
             $testParagraphText = 'Test paragraph'
             $document = Document -Name 'TestDocument' {
                 Paragraph $testParagraphText -Font Ariel
@@ -172,10 +176,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch ('[..]<w:r>[..]<w:t>{0}</w:t>[..]' -f $testParagraphText);
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run text "[..]<w:r>[..]<w:t>{0}</w:t>[..]" using "Text" property' {
+        It 'outputs run text "[..][w:r][..][w:t]{0}[/w:t][..]" using "Text" property' {
             ## Ignore the space preservation namespace
             $testParagraphText = 'Test paragraph'
             $document = Document -Name 'TestDocument' {
@@ -185,10 +189,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch ('[..]<w:r>[..]<w:t>{0}</w:t>[..]' -f $testParagraphText);
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs run text "[..]<w:r>[..]<w:t></w:t><w:br /></w:t>[..]</w:r>[..]" with embedded new line' {
+        It 'outputs run text "[..][w:r][..][w:t][/w:t][w:br /][/w:t][..][/w:r][..]" with embedded new line' {
             ## Ignore the space preservation namespace
             $document = Document -Name 'TestDocument' {
                 Paragraph -Name 'Test' -Text ('Test{0}Paragraph' -f [System.Environment]::NewLine)
@@ -197,10 +201,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch ('<w:t>Test</w:t><w:br /><w:t>Paragraph</w:t></w:r>');
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'outputs space between runs "<w:t [..]>abc </w:t>[..]<w:t>def</w:t>" (by default)' {
+        It 'outputs space between runs "[w:t [..]]abc [/w:t][..][w:t]def[/w:t]" (by default)' {
             ## Ignore the space preservation namespace
             $document = Document -Name 'TestDocument' {
                 Paragraph {
@@ -212,10 +216,10 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch ('<w:t [..]>Test </w:t>[..]<w:t>paragraph</w:t>');
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
-        It 'does not output space between runs "<w:t>abc</w:t>[..]<w:t>def</w:t>" (when specified)' {
+        It 'does not output space between runs "[w:t]abc[/w:t][..][w:t]def[/w:t]" (when specified)' {
             ## Ignore the space preservation namespace
             $document = Document -Name 'TestDocument' {
                 Paragraph {
@@ -227,7 +231,7 @@ InModuleScope 'PScribo' {
             $testDocument = Get-WordDocument -Document $document
 
             $expected = GetMatch ('<w:t>Test</w:t>[..]<w:t>paragraph</w:t>');
-            $testDocument.DocumentElement.OuterXml  | Should Match $expected;
+            $testDocument.DocumentElement.OuterXml  | Should -Match $expected;
         }
 
     }

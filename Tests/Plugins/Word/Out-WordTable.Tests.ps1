@@ -6,41 +6,48 @@ Import-Module "$moduleRoot\PScribo.psm1" -Force;
 
 InModuleScope 'PScribo' {
 
-    function GetMatch
-    {
-        [CmdletBinding()]
-        param
-        (
-            [System.String] $String,
-            [System.Management.Automation.SwitchParameter] $Complete
-        )
-        Write-Verbose "Pre Match : '$String'"
-        $matchString = $String.Replace('/','\/')
-        if (-not $String.StartsWith('^'))
-        {
-            $matchString = $matchString.Replace('[..]','[\s\S]+')
-            $matchString = $matchString.Replace('[??]','([\s\S]+)?')
-            if ($Complete)
-            {
-                $matchString = '^<w:test xmlns:w="http:\/\/schemas.openxmlformats.org\/wordprocessingml\/2006\/main">{0}<\/w:test>$' -f $matchString
-            }
-        }
-        Write-Verbose "Post Match: '$matchString'"
-        return $matchString
-    }
+    
 
     Describe 'Plugins\Word\Out-WordTable' {
+        BeforeAll {
+            function GetMatch
+                {
+                    [CmdletBinding()]
+                    param
+                    (
+                        [System.String] $String,
+                        [System.Management.Automation.SwitchParameter] $Complete
+                    )
+                    Write-Verbose "Pre Match : '$String'"
+                    $matchString = $String.Replace('/','\/')
+                    if (-not $String.StartsWith('^'))
+                    {
+                        $matchString = $matchString.Replace('[..]','[\s\S]+')
+                        $matchString = $matchString.Replace('[??]','([\s\S]+)?')
+                        if ($Complete)
+                        {
+                            $matchString = '^<w:test xmlns:w="http:\/\/schemas.openxmlformats.org\/wordprocessingml\/2006\/main">{0}<\/w:test>$' -f $matchString
+                        }
+                    }
+                    Write-Verbose "Post Match: '$matchString'"
+                    return $matchString
+                }
+        }
+
 
         BeforeEach {
             $testRows = Get-Process |
                 Select-Object -Property 'ProcessName','SI','Id' -First 3
         }
 
-        foreach ($tableStyle in @($false, $true)) {
+        $tableStyleTestCases = @(
+            @{ TableStyle = $false; TableType = 'List' }
+            @{ TableStyle = $true; TableType = 'Tabular' }
+        )
 
-            $tableType = if ($tableStyle) { 'Tabular' } else { 'List' }
+        It "outputs <TableType> table border `"[w:tblBorders][..][/w:tblBorders]`"" -ForEach $tableStyleTestCases {
+            param ($tableStyle)
 
-            It "outputs $tableType table border `"<w:tblBorders>[..]</w:tblBorders>`"" {
                 $document = Document -Name 'TestDocument' {
                     $testRows |
                             Table -Name 'Test Table' -List:$tableStyle
@@ -49,10 +56,12 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:tblBorders>[..]</w:tblBorders>'
-                $testDocument.DocumentElement.OuterXml | Should Match $expected
-            }
+                $testDocument.DocumentElement.OuterXml | Should -Match $expected
+        }
 
-            It "outputs $tableType table border color" {
+        It "outputs <TableType> table border color" -ForEach $tableStyleTestCases {
+            param ($tableStyle)
+
                 $defaulBorderColor = '2A70BE'
                 $document = Document -Name 'TestDocument' {
                     $testRows |
@@ -61,15 +70,17 @@ InModuleScope 'PScribo' {
 
                 $testDocument = Get-WordDocument -Document $document
 
-                $testDocument.OuterXml | Should Match (GetMatch ('<w:top w:sz="5.76" w:val="single" w:color="2A70BE" />' -f $defaulBorderColor))
-                $testDocument.OuterXml | Should Match (GetMatch ('<w:bottom w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
-                $testDocument.OuterXml | Should Match (GetMatch ('<w:start w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
-                $testDocument.OuterXml | Should Match (GetMatch ('<w:end w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
-                $testDocument.OuterXml | Should Match (GetMatch ('<w:insideH w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
-                $testDocument.OuterXml | Should Match (GetMatch ('<w:insideV w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
-            }
+                $testDocument.OuterXml | Should -Match (GetMatch ('<w:top w:sz="5.76" w:val="single" w:color="2A70BE" />' -f $defaulBorderColor))
+                $testDocument.OuterXml | Should -Match (GetMatch ('<w:bottom w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
+                $testDocument.OuterXml | Should -Match (GetMatch ('<w:start w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
+                $testDocument.OuterXml | Should -Match (GetMatch ('<w:end w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
+                $testDocument.OuterXml | Should -Match (GetMatch ('<w:insideH w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
+                $testDocument.OuterXml | Should -Match (GetMatch ('<w:insideV w:sz="5.76" w:val="single" w:color="{0}" />' -f $defaulBorderColor))
+        }
 
-            It "outputs $tableType table cell spacing `"<w:tblCellMar>[..]</w:tblCellMar>`"" {
+        It "outputs <TableType> table cell spacing `"[w:tblCellMar][..][/w:tblCellMar]`"" -ForEach $tableStyleTestCases {
+            param ($tableStyle)
+
                 $defaultPaddingTop = ConvertTo-InvariantCultureString -Object 14.4
                 $defaultPaddingLeft = ConvertTo-InvariantCultureString -Object 86.4
                 $defaultPaddingBottom = ConvertTo-InvariantCultureString -Object 0
@@ -81,14 +92,16 @@ InModuleScope 'PScribo' {
 
                 $testDocument = Get-WordDocument -Document $document
 
-                $testDocument.DocumentElement.OuterXml | Should Match (GetMatch ('<w:tblCellMar>[..]</w:tblCellMar>'))
-                $testDocument.DocumentElement.OuterXml | Should Match (GetMatch ('<w:top w:w="{0}" w:type="dxa" />' -f $defaultPaddingTop))
-                $testDocument.DocumentElement.OuterXml | Should Match (GetMatch ('<w:start w:w="{0}" w:type="dxa" />' -f $defaultPaddingLeft))
-                $testDocument.DocumentElement.OuterXml | Should Match (GetMatch ('<w:bottom w:w="{0}" w:type="dxa" />' -f $defaultPaddingBottom))
-                $testDocument.DocumentElement.OuterXml | Should Match (GetMatch ('<w:end w:w="{0}" w:type="dxa" />' -f $defaultPaddingRight))
-            }
+                $testDocument.DocumentElement.OuterXml | Should -Match (GetMatch ('<w:tblCellMar>[..]</w:tblCellMar>'))
+                $testDocument.DocumentElement.OuterXml | Should -Match (GetMatch ('<w:top w:w="{0}" w:type="dxa" />' -f $defaultPaddingTop))
+                $testDocument.DocumentElement.OuterXml | Should -Match (GetMatch ('<w:start w:w="{0}" w:type="dxa" />' -f $defaultPaddingLeft))
+                $testDocument.DocumentElement.OuterXml | Should -Match (GetMatch ('<w:bottom w:w="{0}" w:type="dxa" />' -f $defaultPaddingBottom))
+                $testDocument.DocumentElement.OuterXml | Should -Match (GetMatch ('<w:end w:w="{0}" w:type="dxa" />' -f $defaultPaddingRight))
+        }
 
-            It "outputs $tableType table spacing `"<w:spacing w:before=`"72`" w:after=`"72`" />`"" {
+        It "outputs <TableType> table spacing `"[w:spacing w:before=`"72`" w:after=`"72`" /]`"" -ForEach $tableStyleTestCases {
+            param ($tableStyle)
+
                 $document = Document -Name 'TestDocument' {
                     $testRows |
                             Table -Name 'Test Table' -List:$tableStyle
@@ -97,10 +110,12 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('<w:spacing w:before="72" w:after="72" />')
-                $testDocument.DocumentElement.OuterXml | Should Match $expected
-            }
+                $testDocument.DocumentElement.OuterXml | Should -Match $expected
+        }
 
-            It "outputs $tableType table with default left alignment `"<w:jc W:val=`"start`" />`"" {
+        It "outputs <TableType> table with default left alignment `"[w:jc W:val=`"start`" /]`"" -ForEach $tableStyleTestCases {
+            param ($tableStyle)
+
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table
                 }
@@ -108,10 +123,12 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:jc w:val="start" />'
-                $testDocument.OuterXml | Should Match $expected
-            }
+                $testDocument.OuterXml | Should -Match $expected
+        }
 
-            It "outputs $tableType table with center alignment `"<w:jc W:val=`"center`" />`"" {
+        It "outputs <TableType> table with center alignment `"[w:jc W:val=`"center`" /]`"" -ForEach $tableStyleTestCases {
+            param ($tableStyle)
+
                 $document = Document -Name 'TestDocument' {
                     TableStyle 'Center' -Align Center
                     $testRows | Table -Style 'Center'
@@ -120,10 +137,12 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:jc w:val="center" />'
-                $testDocument.OuterXml | Should Match $expected
-            }
+                $testDocument.OuterXml | Should -Match $expected
+        }
 
-            It "outputs $tableType table with right alignment `"<w:jc W:val=`"end`" />`"" {
+        It "outputs <TableType> table with right alignment `"[w:jc W:val=`"end`" /]`"" -ForEach $tableStyleTestCases {
+            param ($tableStyle)
+
                 $document = Document -Name 'TestDocument' {
                     TableStyle 'Right' -Align Right
                     $testRows | Table -Style 'Right'
@@ -132,9 +151,7 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:jc w:val="end" />'
-                $testDocument.OuterXml | Should Match $expected
-            }
-
+                $testDocument.OuterXml | Should -Match $expected
         }
 
         Context 'List Table' {
@@ -144,7 +161,7 @@ InModuleScope 'PScribo' {
                     Select-Object -Property 'ProcessName','SI','Id' -First 3
             }
 
-            It 'outputs table per row "(<w:tbl>[..]</w:tbl>.*){3}"' {
+            It 'outputs table per row "([w:tbl][..][/w:tbl].*){3}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -List
                 }
@@ -152,10 +169,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('(<w:tbl>[..]</w:tbl>.*){{{0}}}' -f ($testRows.Count))
-                $testDocument.DocumentElement.OuterXml | Should Match $expected
+                $testDocument.DocumentElement.OuterXml | Should -Match $expected
             }
 
-            It 'outputs space between each table "(<w:p />.*){2}"' {
+            It 'outputs space between each table "([w:p /].*){2}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -List
                 }
@@ -163,10 +180,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('(<w:p />.*){{{0}}}' -f ($testRows.Count -1))
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs one row per object property "(<w:tr>[..]</w:tr>.*){3}"' {
+            It 'outputs one row per object property "([w:tr][..][/w:tr].*){3}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -List
                 }
@@ -174,10 +191,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('(<w:tr>[..]</w:tr>.*){{{0}}}' -f $testRows.Count)
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs two cells per object property "(<w:tc>[..]</w:tc>.*){6}"' {
+            It 'outputs two cells per object property "([w:tc][..][/w:tc].*){6}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -List;
                 }
@@ -185,10 +202,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('(<w:tc>[..]</w:tc>.*){{{0}}}' -f ($testRows.Count * 2))
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs table cell percentage widths "(<w:tcW w:w="[..]" w:type="pct" />.*){6}' {
+            It 'outputs table cell percentage widths "([w:tcW w:w="[..]" w:type="pct" /].*){6}' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Select-Object -First 1 |
                         Table -Name 'Test Table' -List -ColumnWidths 30,70
@@ -197,10 +214,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('(<w:tcW w:w="[..]" w:type="pct" />.*){{{0}}}' -f ($testRows.Count * 2))
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs paragraph per table cell "(<w:p>[..]</w:p>.*){6}"' {
+            It 'outputs paragraph per table cell "([w:p][..][/w:p].*){6}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Select-Object -First 1 |
                         Table -Name 'Test Table' -List -ColumnWidths 30,70
@@ -209,10 +226,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '(<w:p>[..]</w:p>.*){6}'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs custom cell style "(<w:pPr><w:pStyle w:val="{0}" /><w:spacing w:before="0" w:after="0" /></w:pPr>)"' {
+            It 'outputs custom cell style "([w:pPr][w:pStyle w:val="{0}" /][w:spacing w:before="0" w:after="0" /][/w:pPr])"' {
                 $testStyleName = 'Custom'
                 $document = Document -Name 'TestDocument' {
                     Style -Name $testStyleName -Bold
@@ -226,7 +243,7 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('(<w:pPr><w:pStyle w:val="{0}" /><w:spacing w:before="0" w:after="0" /></w:pPr>){{1}}' -f $testStyleName)
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
         }
 
@@ -237,7 +254,7 @@ InModuleScope 'PScribo' {
                     Select-Object -Property 'ProcessName','SI','Id' -First 3
             }
 
-            It 'appends table "<w:tbl>[..]</w:tbl>"' {
+            It 'appends table "[w:tbl][..][/w:tbl]"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table
                 }
@@ -245,10 +262,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:tbl>[..]</w:tbl>'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs table rows including header "(<w:tr>[..]?</w:tr>){4}"' {
+            It 'outputs table rows including header "([w:tr][..]?[/w:tr]){4}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table
                 }
@@ -256,10 +273,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '(<w:tr>[..]?</w:tr>){4}'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs table header "<w:tr><w:trPr><w:tblHeader />"' {
+            It 'outputs table header "[w:tr][w:trPr][w:tblHeader /]"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table
                 }
@@ -267,10 +284,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:tr><w:trPr><w:tblHeader />'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs table borders "<w:tblBorders><w:top[..]/><w:bottom[..]/><w:start[..]/>[..]</w:tblBorders>"' {
+            It 'outputs table borders "[w:tblBorders][w:top[..]/][w:bottom[..]/][w:start[..]/][..][/w:tblBorders]"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table'
                 }
@@ -278,10 +295,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:tblBorders><w:top [..] /><w:bottom [..] /><w:start [..] />[..]</w:tblBorders>'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 #
-            It 'outputs table borders "<w:tblBorders>[..]<w:end[..]/><w:insideH[..]/><w:insideV[..]/></w:tblBorders>"' {
+            It 'outputs table borders "[w:tblBorders][..][w:end[..]/][w:insideH[..]/][w:insideV[..]/][/w:tblBorders]"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table'
                 }
@@ -289,10 +306,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:tblBorders>[..]<w:end [..] /><w:insideH [..] /><w:insideV [..] /></w:tblBorders>'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs grid per column "(<w:gridCol w:w=`"\d+`" />){2}"' {
+            It 'outputs grid per column "([w:gridCol w:w=`"\d+`" /]){2}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table'
                 }
@@ -300,10 +317,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '(<w:gridCol w:w="\d+" />){2}'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs table cell percentage widths "(<w:tcW w:w="[..]" w:type="pct" />.*){2}"' {
+            It 'outputs table cell percentage widths "([w:tcW w:w="[..]" w:type="pct" /].*){2}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -Columns 'ProcessName','SI' -ColumnWidths 30,70
                 }
@@ -311,10 +328,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '(<w:tcW w:w="[..]" w:type="pct" />.*){2}'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs cell style "(<w:pPr><w:pStyle w:val="{0}" /><w:spacing w:before="0" w:after="0" /></w:pPr>){1}"' {
+            It 'outputs cell style "([w:pPr][w:pStyle w:val="{0}" /][w:spacing w:before="0" w:after="0" /][/w:pPr]){1}"' {
                 $testStyleName = 'Custom'
                 $document = Document -Name 'TestDocument' {
                     Style -Name $testStyleName -Bold
@@ -328,10 +345,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('(<w:pPr><w:pStyle w:val="{0}" /><w:spacing w:before="0" w:after="0" /></w:pPr>){{1}}' -f $testStyleName)
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs row style "(<w:pPr><w:pStyle w:val="{0}" /><w:spacing w:before="0" w:after="0" /></w:pPr>.*){2}"' {
+            It 'outputs row style "([w:pPr][w:pStyle w:val="{0}" /][w:spacing w:before="0" w:after="0" /][/w:pPr].*){2}"' {
                 $testStyleName = 'Custom'
                 $document = Document -Name 'TestDocument' {
                     Style -Name $testStyleName -Bold
@@ -345,10 +362,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch ('(<w:pPr><w:pStyle w:val="{0}" /><w:spacing w:before="0" w:after="0" /></w:pPr>.*){{2}}' -f $testStyleName)
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs table cells per row "(<w:tc>[..]?<\/w:tc>.*){8}"' {
+            It 'outputs table cells per row "([w:tc][..]?[\/w:tc].*){8}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -Columns 'ProcessName','SI' -ColumnWidths 30,70
                 }
@@ -356,10 +373,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '(<w:tc>[..]?</w:tc>.*){8}'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs paragraph per table cell "(<w:p>[..]</w:p>.*){8}"' {
+            It 'outputs paragraph per table cell "([w:p][..][/w:p].*){8}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -Columns 'ProcessName','SI' -ColumnWidths 30,70
                 }
@@ -367,10 +384,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '(<w:p>[..]</w:p>.*){8}'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs run per table cell "(<w:r>[..]</w:r>.*){8}"' {
+            It 'outputs run per table cell "([w:r][..][/w:r].*){8}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -Columns 'ProcessName','SI' -ColumnWidths 30,70
                 }
@@ -378,10 +395,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '(<w:r>[..]</w:r>.*){8}'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs text per cell "(<w:t>[..]</w:t>.*){8}"' {
+            It 'outputs text per cell "([w:t][..][/w:t].*){8}"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -Columns 'ProcessName','SI' -ColumnWidths 30,70
                 }
@@ -389,10 +406,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '(<w:t>[..]</w:t>.*){8}'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs default table style "<w:tblStyle w:val="TableDefault" />"' {
+            It 'outputs default table style "[w:tblStyle w:val="TableDefault" /]"' {
                 $document = Document -Name 'TestDocument' {
                     $testRows | Table -Name 'Test Table' -Columns 'ProcessName','SI' -ColumnWidths 30,70
                 }
@@ -400,10 +417,10 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:tblStyle w:val="TableDefault" />'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
-            It 'outputs custom table style "<w:tblStyle w:val="CustomTableStyle" />"' {
+            It 'outputs custom table style "[w:tblStyle w:val="CustomTableStyle" /]"' {
                 $document = Document -Name 'TestDocument' {
                     Style -Name 'CustomStyle' -Size 11 -Color 000;
                     TableStyle -Id 'CustomTableStyle' -HeaderStyle 'CustomStyle' -RowStyle 'CustomStyle' -AlternateRowStyle 'CustomStyle';
@@ -413,7 +430,7 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch '<w:tblStyle w:val="CustomTableStyle" />'
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
 
             It 'outputs table cell with embedded new line' {
@@ -425,7 +442,7 @@ InModuleScope 'PScribo' {
                 $testDocument = Get-WordDocument -Document $document
 
                 $expected = GetMatch "(<w:t>[..]</w:t><w:br />){2}<w:t>[..]</w:t>"
-                $testDocument.OuterXml | Should Match $expected
+                $testDocument.OuterXml | Should -Match $expected
             }
         }
     }

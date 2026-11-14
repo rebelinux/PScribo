@@ -8,7 +8,9 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Html\Out-HtmlTable' {
 
-        $script:currentPageNumber = 1
+        BeforeAll {
+            $script:currentPageNumber = 1
+        }
 
         Context 'Table' {
 
@@ -22,19 +24,19 @@ InModuleScope 'PScribo' {
             }
 
             It 'creates default table class of tabledefault' {
-                $html.Div.Table.Class | Should BeExactly 'tabledefault'
+                $html.Div.Table.Class | Should -BeExactly 'tabledefault'
             }
 
             It 'creates table headings row' {
-                $html.Div.Table.Thead | Should Not BeNullOrEmpty
+                $html.Div.Table.Thead | Should -Not -BeNullOrEmpty
             }
 
             It 'creates column for each object property' {
-                $html.Div.Table.Thead.Tr.Th.Count | Should Be ($processes | Get-Member -MemberType Properties).Count
+                $html.Div.Table.Thead.Tr.Th.Count | Should -Be ($processes | Get-Member -MemberType Properties).Count
             }
 
             It 'creates a row for each object' {
-                $html.Div.Table.Tbody.Tr.Count | Should Be $processes.Count
+                $html.Div.Table.Tbody.Tr.Count | Should -Be $processes.Count
             }
         }
 
@@ -53,19 +55,19 @@ InModuleScope 'PScribo' {
 
             It 'creates no table heading row' {
                 ## Fix Set-StrictMode
-                $html.Div.Table.PSObject.Properties['Thead'] | Should BeNullOrEmpty
+                $html.Div.Table.PSObject.Properties['Thead'] | Should -BeNullOrEmpty
             }
 
             It 'creates default table class of tabledefault' {
-                $html.Div.Table.Class | Should BeExactly 'tabledefault'
+                $html.Div.Table.Class | Should -BeExactly 'tabledefault'
             }
 
             It 'creates a two column table' {
-                $html.Div.Table.Tbody.Tr[0].ChildNodes.Count | Should Be 2
+                $html.Div.Table.Tbody.Tr[0].ChildNodes.Count | Should -Be 2
             }
 
             It 'creates a row for each object property' {
-                $html.Div.Table.Tbody.Tr.Count | Should Be ($processes | Get-Member -MemberType Properties).Count
+                $html.Div.Table.Tbody.Tr.Count | Should -Be ($processes | Get-Member -MemberType Properties).Count
             }
 
         } #end context List
@@ -87,7 +89,7 @@ InModuleScope 'PScribo' {
                 $table = $newLineTable | Table -Name 'Test Table' | Out-HtmlTable
 
                 [Xml] $html = $table.Replace('&','&amp;')
-                $html.OuterXml | Should Match $expected
+                $html.OuterXml | Should -Match $expected
             }
 
             It 'creates a list table cell with an embedded new line' {
@@ -99,7 +101,7 @@ InModuleScope 'PScribo' {
                 $table = $newLineTable | Table -Name 'Test Table' | Out-HtmlTable
 
                 [Xml] $html = $table.Replace('&','&amp;')
-                $html.OuterXml | Should Match $expected
+                $html.OuterXml | Should -Match $expected
             }
         }
     }

@@ -7,7 +7,9 @@ InModuleScope 'PScribo' {
 
     Describe 'Footer' {
 
-        $pscriboDocument = Document 'ScaffoldDocument' {}
+        BeforeAll {
+            $pscriboDocument = Document 'ScaffoldDocument' {}
+        }
 
         Context 'Default Footer' {
 
@@ -15,7 +17,7 @@ InModuleScope 'PScribo' {
                 $pscriboDocument = Document 'ScaffoldDocument' {
                     Footer -Default { }
                 }
-                $pscriboDocument.Footer.DefaultFooter -is [PSCustomObject] | Should Be $true
+                $pscriboDocument.Footer.DefaultFooter -is [PSCustomObject] | Should -Be $true
             }
 
             It 'creates a PScribo.Paragraph type' {
@@ -23,7 +25,7 @@ InModuleScope 'PScribo' {
                     Footer -Default { }
                 }
 
-                $pscriboDocument.Footer.DefaultFooter.Type | Should Be 'PScribo.Footer'
+                $pscriboDocument.Footer.DefaultFooter.Type | Should -Be 'PScribo.Footer'
             }
 
             It "also sets 'FirstPageFooter'" {
@@ -31,8 +33,8 @@ InModuleScope 'PScribo' {
                     Footer -Default -IncludeOnFirstPage { }
                 }
 
-                $pscriboDocument.Footer.DefaultFooter.Type | Should Be 'PScribo.Footer'
-                $pscriboDocument.Footer.FirstPageFooter.Type | Should Be 'PScribo.Footer'
+                $pscriboDocument.Footer.DefaultFooter.Type | Should -Be 'PScribo.Footer'
+                $pscriboDocument.Footer.FirstPageFooter.Type | Should -Be 'PScribo.Footer'
             }
 
             It "adds additional blank line by default" {
@@ -40,7 +42,7 @@ InModuleScope 'PScribo' {
                     Footer -Default { }
                 }
 
-                $pscriboDocument.Footer.DefaultFooter.Sections.Type | Should Be 'PScribo.BlankLine'
+                $pscriboDocument.Footer.DefaultFooter.Sections.Type | Should -Be 'PScribo.BlankLine'
             }
 
             It "adds no blank line when '-NoSpace' specified" {
@@ -48,7 +50,7 @@ InModuleScope 'PScribo' {
                     Footer -Default -NoSpace { }
                 }
 
-                $pscriboDocument.Footer.DefaultFooter.Sections | Should BeNullOrEmpty
+                $pscriboDocument.Footer.DefaultFooter.Sections | Should -BeNullOrEmpty
             }
 
             It "processes embedded 'PScribo.Paragraph'" {
@@ -58,7 +60,7 @@ InModuleScope 'PScribo' {
                     }
                 }
 
-                $pscriboDocument.Footer.DefaultFooter.Sections.Type | Should Be 'PScribo.Paragraph'
+                $pscriboDocument.Footer.DefaultFooter.Sections.Type | Should -Be 'PScribo.Paragraph'
             }
 
             It "processes embedded 'PScribo.Table'" {
@@ -68,7 +70,7 @@ InModuleScope 'PScribo' {
                     }
                 }
 
-                $pscriboDocument.Footer.DefaultFooter.Sections.Type | Should Be 'PScribo.Table'
+                $pscriboDocument.Footer.DefaultFooter.Sections.Type | Should -Be 'PScribo.Table'
             }
         }
 
@@ -78,7 +80,7 @@ InModuleScope 'PScribo' {
                 $pscriboDocument = Document 'ScaffoldDocument' {
                     Footer -FirstPage { }
                 }
-                $pscriboDocument.Footer.FirstPageFooter -is [PSCustomObject] | Should Be $true
+                $pscriboDocument.Footer.FirstPageFooter -is [PSCustomObject] | Should -Be $true
             }
 
             It 'creates a PScribo.Paragraph type' {
@@ -86,7 +88,7 @@ InModuleScope 'PScribo' {
                     Footer -FirstPage { }
                 }
 
-                $pscriboDocument.Footer.FirstPageFooter.Type | Should Be 'PScribo.Footer'
+                $pscriboDocument.Footer.FirstPageFooter.Type | Should -Be 'PScribo.Footer'
             }
 
             It "adds additional blank line by default" {
@@ -94,7 +96,7 @@ InModuleScope 'PScribo' {
                     Footer -FirstPage { }
                 }
 
-                $pscriboDocument.Footer.FirstPageFooter.Sections.Type | Should Be 'PScribo.BlankLine'
+                $pscriboDocument.Footer.FirstPageFooter.Sections.Type | Should -Be 'PScribo.BlankLine'
             }
 
             It "adds no blank line when '-NoSpace' specified" {
@@ -102,7 +104,7 @@ InModuleScope 'PScribo' {
                     Footer -FirstPage -NoSpace { }
                 }
 
-                $pscriboDocument.Footer.FirstPageFooter.Sections | Should BeNullOrEmpty
+                $pscriboDocument.Footer.FirstPageFooter.Sections | Should -BeNullOrEmpty
             }
 
             It "processes embedded 'PScribo.Paragraph'" {
@@ -112,7 +114,7 @@ InModuleScope 'PScribo' {
                     }
                 }
 
-                $pscriboDocument.Footer.FirstPageFooter.Sections.Type | Should Be 'PScribo.Paragraph'
+                $pscriboDocument.Footer.FirstPageFooter.Sections.Type | Should -Be 'PScribo.Paragraph'
             }
 
             It "processes embedded 'PScribo.Table'" {
@@ -122,7 +124,7 @@ InModuleScope 'PScribo' {
                     }
                 }
 
-                $pscriboDocument.Footer.FirstPageFooter.Sections.Type | Should Be 'PScribo.Table'
+                $pscriboDocument.Footer.FirstPageFooter.Sections.Type | Should -Be 'PScribo.Table'
             }
         }
     }

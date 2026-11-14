@@ -33,7 +33,7 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
                 List -Item 'Apples', 'Bananas', 'Oranges'
             }
 
-            $pscriboDocument.Lists.Count | Should Be 1
+            $pscriboDocument.Lists.Count | Should -Be 1
         }
 
         It 'defaults to "Disc" bulleted list' {
@@ -41,8 +41,8 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
                 List -Item 'Apples', 'Bananas', 'Oranges'
             }
 
-            $pscriboDocument.Lists[0].IsNumbered | Should Be $false
-            $pscriboDocument.Lists[0].BulletStyle | Should Be 'Disc'
+            $pscriboDocument.Lists[0].IsNumbered | Should -Be $false
+            $pscriboDocument.Lists[0].BulletStyle | Should -Be 'Disc'
         }
 
         It 'creates a numbered list' {
@@ -50,7 +50,7 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
                 List -Item 'Apples', 'Bananas', 'Oranges' -Numbered
             }
 
-            $pscriboDocument.Lists[0].IsNumbered | Should Be $true
+            $pscriboDocument.Lists[0].IsNumbered | Should -Be $true
         }
 
         It 'defaults to "Number" numbered list' {
@@ -58,8 +58,8 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
                 List -Item 'Apples', 'Bananas', 'Oranges' -Numbered
             }
 
-            $pscriboDocument.Lists[0].NumberStyle | Should Be 'Number'
-            $pscriboDocument.Lists[0].IsNumbered | Should Be $true
+            $pscriboDocument.Lists[0].NumberStyle | Should -Be 'Number'
+            $pscriboDocument.Lists[0].IsNumbered | Should -Be $true
         }
 
         It 'inherits style by default' {
@@ -67,7 +67,7 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
                 List -Item 'Apples', 'Bananas', 'Oranges' -Numbered
             }
 
-            $pscriboDocument.Lists[0].IsStyleInherited | Should Be $true
+            $pscriboDocument.Lists[0].IsStyleInherited | Should -Be $true
         }
 
         It 'sets style when specified' {
@@ -75,9 +75,9 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
                 List -Item 'Apples', 'Bananas', 'Oranges' -Style 'Caption'
             }
 
-            $pscriboDocument.Lists[0].Style | Should Be 'Caption'
-            $pscriboDocument.Lists[0].IsStyleInherited | Should Be $false
-            $pscriboDocument.Lists[0].HasStyle | Should Be $true
+            $pscriboDocument.Lists[0].Style | Should -Be 'Caption'
+            $pscriboDocument.Lists[0].IsStyleInherited | Should -Be $false
+            $pscriboDocument.Lists[0].HasStyle | Should -Be $true
         }
 
         It 'creates multi-level list' {
@@ -91,10 +91,10 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
                 }
             }
 
-            $pscriboDocument.Lists[0].IsMultiLevel | Should Be $true
-            $pscriboDocument.Lists[0].Items.Count | Should Be 5
-            $pscriboDocument.Lists[0].Items[1].Items.Count | Should Be 3
-            $pscriboDocument.Lists[0].Items[4].Items.Count | Should Be 3
+            $pscriboDocument.Lists[0].IsMultiLevel | Should -Be $true
+            $pscriboDocument.Lists[0].Items.Count | Should -Be 5
+            $pscriboDocument.Lists[0].Items[1].Items.Count | Should -Be 3
+            $pscriboDocument.Lists[0].Items[4].Items.Count | Should -Be 3
         }
 
         It 'creates multi-level numbered and bulleted list' {
@@ -108,10 +108,10 @@ InModuleScope -ModuleName 'PScribo' -ScriptBlock {
                 }
             }
 
-            $pscriboDocument.Lists[0].IsMultiLevel | Should Be $true
-            $pscriboDocument.Lists[0].IsNumbered | Should Be $true
-            $pscriboDocument.Lists[0].Items[1].IsNumbered | Should Be $false
-            $pscriboDocument.Lists[0].Items[4].IsNumbered | Should Be $false
+            $pscriboDocument.Lists[0].IsMultiLevel | Should -Be $true
+            $pscriboDocument.Lists[0].IsNumbered | Should -Be $true
+            $pscriboDocument.Lists[0].Items[1].IsNumbered | Should -Be $false
+            $pscriboDocument.Lists[0].Items[4].IsNumbered | Should -Be $false
         }
 
     }

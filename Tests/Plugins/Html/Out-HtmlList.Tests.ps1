@@ -25,11 +25,11 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlList -List $Document.Lists[0]
 
-            $result | Should Match ('<ul style="list-style-type:{0};">' -f $bulletStyle)
-            $result | Should Match ('<li>{0}</li>' -f $testItems[0])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[1])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[2])
-            $result | Should Match '</ul>'
+            $result | Should -Match ('<ul style="list-style-type:{0};">' -f $bulletStyle)
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[0])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[1])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[2])
+            $result | Should -Match '</ul>'
         }
 
         It 'Single-level bulleted circle list' {
@@ -40,11 +40,11 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlList -List $Document.Lists[0]
 
-            $result | Should Match ('<ul style="list-style-type:{0};">' -f $bulletStyle)
-            $result | Should Match ('<li>{0}</li>' -f $testItems[0])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[1])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[2])
-            $result | Should Match '</ul>'
+            $result | Should -Match ('<ul style="list-style-type:{0};">' -f $bulletStyle)
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[0])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[1])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[2])
+            $result | Should -Match '</ul>'
         }
 
         It 'Single-level bulleted dash list' {
@@ -55,11 +55,11 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlList -List $Document.Lists[0]
 
-            $result | Should Match '<ul>' # Dash is default unordered list type
-            $result | Should Match ('<li>{0}</li>' -f $testItems[0])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[1])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[2])
-            $result | Should Match '</ul>'
+            $result | Should -Match '<ul>' # Dash is default unordered list type
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[0])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[1])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[2])
+            $result | Should -Match '</ul>'
         }
 
         It 'Single-level bulleted square list' {
@@ -70,11 +70,11 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlList -List $Document.Lists[0]
 
-            $result | Should Match ('<ul style="list-style-type:{0};">' -f $bulletStyle)
-            $result | Should Match ('<li>{0}</li>' -f $testItems[0])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[1])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[2])
-            $result | Should Match '</ul>'
+            $result | Should -Match ('<ul style="list-style-type:{0};">' -f $bulletStyle)
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[0])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[1])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[2])
+            $result | Should -Match '</ul>'
         }
 
         It 'Single-level numbered list' {
@@ -84,11 +84,11 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlList -List $Document.Lists[0]
 
-            $result | Should Match '<ol style="list-style-type:decimal;">'
-            $result | Should Match ('<li>{0}</li>' -f $testItems[0])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[1])
-            $result | Should Match ('<li>{0}</li>' -f $testItems[2])
-            $result | Should Match '</ol>'
+            $result | Should -Match '<ol style="list-style-type:decimal;">'
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[0])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[1])
+            $result | Should -Match ('<li>{0}</li>' -f $testItems[2])
+            $result | Should -Match '</ol>'
         }
 
         It 'Multi-level numbered list' {
@@ -109,8 +109,8 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlList -List $Document.Lists[0]
 
-            $result | Should Match '<ol style="list-style-type:decimal;">'
-            $result | Should Match ('<li>{0}</li>\s+<ol style="list-style-type:decimal;">\s+<li>{1}</li>\s+<li>{2}</li>\s+</ol>' -f $testItems[0], $testSubItems[0], $testSubItems[1])
+            $result | Should -Match '<ol style="list-style-type:decimal;">'
+            $result | Should -Match ('<li>{0}</li>\s+<ol style="list-style-type:decimal;">\s+<li>{1}</li>\s+<li>{2}</li>\s+</ol>' -f $testItems[0], $testSubItems[0], $testSubItems[1])
         }
 
         It 'Multi-level roman numbered list' {
@@ -131,8 +131,8 @@ InModuleScope 'PScribo' {
 
             $result = Out-HtmlList -List $Document.Lists[0]
 
-            $result | Should Match '<ol style="list-style-type:lower-roman;">'
-            $result | Should Match ('<li>{0}</li>\s+<ol style="list-style-type:lower-roman;">\s+<li>{1}</li>\s+<li>{2}</li>\s+</ol>' -f $testItems[0], $testSubItems[0], $testSubItems[1])
+            $result | Should -Match '<ol style="list-style-type:lower-roman;">'
+            $result | Should -Match ('<li>{0}</li>\s+<ol style="list-style-type:lower-roman;">\s+<li>{1}</li>\s+<li>{2}</li>\s+</ol>' -f $testItems[0], $testSubItems[0], $testSubItems[1])
         }
 
     }

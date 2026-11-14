@@ -6,19 +6,23 @@ Import-Module "$moduleRoot\PScribo.psm1" -Force;
 
 InModuleScope 'PScribo' {
 
-    function Get-TestXmlNode
-    {
-        param
-        (
-            [System.Xml.XmlDocument] $XmlDocument,
-            [System.String] $XPath
-        )
-        $namespaceManager = New-Object -TypeName 'System.Xml.XmlNamespaceManager' -ArgumentList $XmlDocument.NameTable
-        $namespaceManager.AddNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main')
-        return ,@($XmlDocument.SelectNodes($XPath, $namespaceManager))
-    }
+    
 
     Describe 'Plugins\Word\Bookmarks' {
+        BeforeAll {
+            function Get-TestXmlNode
+                {
+                    param
+                    (
+                        [System.Xml.XmlDocument] $XmlDocument,
+                        [System.String] $XPath
+                    )
+                    $namespaceManager = New-Object -TypeName 'System.Xml.XmlNamespaceManager' -ArgumentList $XmlDocument.NameTable
+                    $namespaceManager.AddNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main')
+                    return ,@($XmlDocument.SelectNodes($XPath, $namespaceManager))
+                }
+        }
+
 
         It 'wraps the section heading in a bookmark' {
             $document = Document -Name 'T' { Section -Name 'Heading' -Id 'sec-1' { Paragraph 'x' } }
@@ -26,10 +30,10 @@ InModuleScope 'PScribo' {
             $xml = Get-WordDocument -Document $document
             $start = Get-TestXmlNode -XmlDocument $xml -XPath '//w:p[w:bookmarkStart]'
 
-            $start.Count | Should Be 1
-            $start[0].InnerText | Should Match 'Heading'
-            $start[0].LastChild.LocalName | Should Be 'bookmarkEnd'
-            $start[0].FirstChild.LocalName | Should Be 'pPr'
+            $start.Count | Should -Be 1
+            $start[0].InnerText | Should -Match 'Heading'
+            $start[0].LastChild.LocalName | Should -Be 'bookmarkEnd'
+            $start[0].FirstChild.LocalName | Should -Be 'pPr'
         }
 
         It 'puts a bookmark in the first cell of a table' {
@@ -39,8 +43,8 @@ InModuleScope 'PScribo' {
 
             $xml = Get-WordDocument -Document $document
 
-            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:tbl//w:bookmarkStart').Count | Should Be 1
-            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:tbl//w:tr[1]//w:bookmarkStart').Count | Should Be 1
+            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:tbl//w:bookmarkStart').Count | Should -Be 1
+            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:tbl//w:tr[1]//w:bookmarkStart').Count | Should -Be 1
         }
 
         It 'puts an anchor token in a table cell as an empty bookmark and keeps the text' {
@@ -50,8 +54,8 @@ InModuleScope 'PScribo' {
 
             $xml = Get-WordDocument -Document $document
 
-            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:tbl//w:bookmarkStart').Count | Should Be 1
-            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:tbl//w:tc[w:p/w:bookmarkStart]')[0].InnerText | Should Match 'Row'
+            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:tbl//w:bookmarkStart').Count | Should -Be 1
+            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:tbl//w:tc[w:p/w:bookmarkStart]')[0].InnerText | Should -Match 'Row'
         }
 
         It 'emits unique bookmark ids and names with valid names' {
@@ -65,20 +69,20 @@ InModuleScope 'PScribo' {
             $ids = $starts | ForEach-Object { $_.GetAttribute('id', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main') }
             $names = $starts | ForEach-Object { $_.GetAttribute('name', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main') }
 
-            $starts.Count | Should Be 3
-            @($ids | Select-Object -Unique).Count | Should Be 3
-            @($names | ForEach-Object { $_.ToLowerInvariant() } | Select-Object -Unique).Count | Should Be 3
+            $starts.Count | Should -Be 3
+            @($ids | Select-Object -Unique).Count | Should -Be 3
+            @($names | ForEach-Object { $_.ToLowerInvariant() } | Select-Object -Unique).Count | Should -Be 3
             foreach ($name in $names)
             {
-                $name | Should Match '^[A-Za-z][A-Za-z0-9_]{0,39}$'
+                $name | Should -Match '^[A-Za-z][A-Za-z0-9_]{0,39}$'
             }
-            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:bookmarkEnd').Count | Should Be 3
+            (Get-TestXmlNode -XmlDocument $xml -XPath '//w:bookmarkEnd').Count | Should -Be 3
         }
 
         It 'does not output bookmarks for sections without an Id' {
             $document = Document -Name 'T' { Section -Name 'A' { Paragraph 'x' } }
 
-            (Get-TestXmlNode -XmlDocument (Get-WordDocument -Document $document) -XPath '//w:bookmarkStart').Count | Should Be 0
+            (Get-TestXmlNode -XmlDocument (Get-WordDocument -Document $document) -XPath '//w:bookmarkStart').Count | Should -Be 0
         }
     }
 }

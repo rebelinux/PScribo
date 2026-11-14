@@ -25,7 +25,7 @@ InModuleScope 'PScribo' {
             $result = Out-TextList -List $Document.Lists[0]
 
             $expectedMatch = '{0}{0}$' -f [System.Environment]::NewLine
-            $result | Should Match $expectedMatch
+            $result | Should -Match $expectedMatch
         }
 
         It 'Single-level bulleted disc list' {
@@ -35,9 +35,9 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextList -List $Document.Lists[0]
 
-            $result | Should Match ('\* {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
-            $result | Should Match ('\* {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
-            $result | Should Match ('\* {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
+            $result | Should -Match ('\* {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
+            $result | Should -Match ('\* {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
+            $result | Should -Match ('\* {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
         }
 
         It 'Single-level bulleted circle list' {
@@ -47,9 +47,9 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextList -List $Document.Lists[0]
 
-            $result | Should Match ('o {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
-            $result | Should Match ('o {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
-            $result | Should Match ('o {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
+            $result | Should -Match ('o {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
+            $result | Should -Match ('o {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
+            $result | Should -Match ('o {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
         }
 
         It 'Single-level bulleted dash list' {
@@ -59,9 +59,9 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextList -List $Document.Lists[0]
 
-            $result | Should Match ('- {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
-            $result | Should Match ('- {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
-            $result | Should Match ('- {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
+            $result | Should -Match ('- {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
+            $result | Should -Match ('- {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
+            $result | Should -Match ('- {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
         }
 
         It 'Single-level bulleted square list' {
@@ -71,9 +71,9 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextList -List $Document.Lists[0]
 
-            $result | Should Match ('\* {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
-            $result | Should Match ('\* {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
-            $result | Should Match ('\* {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
+            $result | Should -Match ('\* {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
+            $result | Should -Match ('\* {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
+            $result | Should -Match ('\* {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
         }
 
         It 'Single-level numbered list' {
@@ -83,9 +83,9 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextList -List $Document.Lists[0]
 
-            $result | Should Match ('1\. {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
-            $result | Should Match ('2\. {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
-            $result | Should Match ('3\. {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
+            $result | Should -Match ('1\. {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
+            $result | Should -Match ('2\. {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
+            $result | Should -Match ('3\. {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
         }
 
         It 'Multi-level numbered list' {
@@ -106,11 +106,11 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextList -List $Document.Lists[0]
 
-            $result | Should Match ('1\. {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
-            $result | Should Match ('1\. {0}{1}' -f $testSubItems[0], [System.Environment]::NewLine)
-            $result | Should Match ('2\. {0}{1}' -f $testSubItems[1], [System.Environment]::NewLine)
-            $result | Should Match ('2\. {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
-            $result | Should Match ('3\. {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
+            $result | Should -Match ('1\. {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
+            $result | Should -Match ('1\. {0}{1}' -f $testSubItems[0], [System.Environment]::NewLine)
+            $result | Should -Match ('2\. {0}{1}' -f $testSubItems[1], [System.Environment]::NewLine)
+            $result | Should -Match ('2\. {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
+            $result | Should -Match ('3\. {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
         }
 
         It 'outputs custom numbered list format' {
@@ -127,9 +127,9 @@ InModuleScope 'PScribo' {
 
             $result = Out-TextList -List $Document.Lists[0]
 
-            $result | Should Match ('xYz-001. {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
-            $result | Should Match ('xYz-002. {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
-            $result | Should Match ('xYz-003. {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
+            $result | Should -Match ('xYz-001. {0}{1}' -f $testItems[0], [System.Environment]::NewLine)
+            $result | Should -Match ('xYz-002. {0}{1}' -f $testItems[1], [System.Environment]::NewLine)
+            $result | Should -Match ('xYz-003. {0}{1}' -f $testItems[2], [System.Environment]::NewLine)
         }
 
     }

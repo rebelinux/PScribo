@@ -24,7 +24,7 @@ InModuleScope 'PScribo' {
 
             $result = Out-JsonTOC | ConvertTo-Json -Depth 100 -Compress
 
-            $result | Should MatchExactly $expected
+            $result | Should -MatchExactly $expected
         }
     }
 }

@@ -8,8 +8,8 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Html\Out-HtmlLineBreak' {
 
-        It 'creates a <hr /> html tag' {
-            Out-HtmlLineBreak | Should BeExactly '<hr />'
+        It 'creates a [hr /] html tag' {
+            Out-HtmlLineBreak | Should -BeExactly '<hr />'
         }
     }
 }

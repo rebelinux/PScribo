@@ -8,15 +8,18 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Html\Out-HtmlSection' {
 
-        $Document = Document -Name 'TestDocument' -ScriptBlock { }
-        $pscriboDocument = $Document
+        BeforeAll {
+            $Document = Document -Name 'TestDocument' -ScriptBlock { }
+            $pscriboDocument = $Document
+        }
+        
 
         It 'calls Out-HtmlParagraph' {
             Mock -CommandName Out-HtmlParagraph
 
             Section -Name TestSection -ScriptBlock { Paragraph 'TestParagraph' } | Out-HtmlSection
 
-            Assert-MockCalled -CommandName Out-HtmlParagraph -Exactly 1
+            Should -Invoke -CommandName Out-HtmlParagraph -Exactly -Times 1
         }
 
         It 'calls Out-HtmlParagraph twice' {
@@ -24,7 +27,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { Paragraph 'TestParagraph'; Paragraph 'TestParagraph'; } | Out-HtmlSection
 
-            Assert-MockCalled -CommandName Out-HtmlParagraph -Exactly 3
+            Should -Invoke -CommandName Out-HtmlParagraph -Exactly -Times 2
         }
 
         It 'calls Out-HtmlTable' {
@@ -32,7 +35,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { Get-Process | Select-Object -First 3 | Table TestTable } | Out-HtmlSection
 
-            Assert-MockCalled -CommandName Out-HtmlTable -Exactly 1
+            Should -Invoke -CommandName Out-HtmlTable -Exactly -Times 1
         }
 
         It 'calls Out-HtmlPageBreak' {
@@ -40,7 +43,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { PageBreak } | Out-HtmlSection
 
-            Assert-MockCalled -CommandName Out-HtmlPageBreak -Exactly 1
+            Should -Invoke -CommandName Out-HtmlPageBreak -Exactly -Times 1
         }
 
         It 'calls Out-HtmlLineBreak' {
@@ -48,7 +51,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { LineBreak } | Out-HtmlSection
 
-            Assert-MockCalled -CommandName Out-HtmlLineBreak -Exactly 1
+            Should -Invoke -CommandName Out-HtmlLineBreak -Exactly -Times 1
         }
 
         It 'calls Out-HtmlBlankLine' {
@@ -56,7 +59,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { BlankLine } | Out-HtmlSection
 
-            Assert-MockCalled -CommandName Out-HtmlBlankLine -Exactly 1
+            Should -Invoke -CommandName Out-HtmlBlankLine -Exactly -Times 1
         }
 
         It 'warns on call Out-HtmlTOC' {
@@ -64,7 +67,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { TOC 'TestTOC' } | Out-HtmlSection -WarningAction SilentlyContinue
 
-            Assert-MockCalled Out-HtmlTOC -Exactly 0
+            Should -Invoke -CommandName Out-HtmlTOC -Exactly -Times 0
         }
 
         It 'encodes HTML section name' {
@@ -73,7 +76,7 @@ InModuleScope 'PScribo' {
 
             $result = Section -Name $sectionName -ScriptBlock { BlankLine } | Out-HtmlSection
 
-            $result -match $expected | Should Be $true
+            $result -match $expected | Should -Be $true
         }
 
         It 'outputs indented section (#73)' {
@@ -81,7 +84,7 @@ InModuleScope 'PScribo' {
             $expected = '<div style="margin-left: 6.00rem;">[\S\s]+</div>'
 
             $result = Section -Name $sectionName -ScriptBlock { BlankLine } -Tabs 2 | Out-HtmlSection
-            $result -match $expected | Should Be $true
+            $result -match $expected | Should -Be $true
         }
 
         It 'calls nested Out-XmlSection' {
@@ -90,7 +93,7 @@ InModuleScope 'PScribo' {
 
             Section -Name TestSection -ScriptBlock { Section -Name SubSection { } } | Out-HtmlSection
 
-            Assert-MockCalled -CommandName Out-HtmlSection -Exactly 1
+            Should -Invoke -CommandName Out-HtmlSection -Exactly -Times 1
         }
     }
 }
