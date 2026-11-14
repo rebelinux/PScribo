@@ -1,27 +1,24 @@
 $here = Split-Path -Path $MyInvocation.MyCommand.Path -Parent;
-$pluginsRoot  = Split-Path -Path $here -Parent;
-$testRoot  = Split-Path -Path $pluginsRoot -Parent;
+$pluginsRoot = Split-Path -Path $here -Parent;
+$testRoot = Split-Path -Path $pluginsRoot -Parent;
 $moduleRoot = Split-Path -Path $testRoot -Parent;
 Import-Module "$moduleRoot\PScribo.psm1" -Force;
 
 InModuleScope 'PScribo' {
 
-    
-
     Describe 'Plugins\Word\Links (external)' {
         BeforeAll {
-            function Get-TestXmlNode
-                {
-                    param
-                    (
-                        [System.Xml.XmlDocument] $XmlDocument,
-                        [System.String] $XPath
-                    )
-                    $namespaceManager = New-Object -TypeName 'System.Xml.XmlNamespaceManager' -ArgumentList $XmlDocument.NameTable
-                    $namespaceManager.AddNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main')
-                    $namespaceManager.AddNamespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
-                    return ,@($XmlDocument.SelectNodes($XPath, $namespaceManager))
-                }
+            function Get-TestXmlNode {
+                param
+                (
+                    [System.Xml.XmlDocument] $XmlDocument,
+                    [System.String] $XPath
+                )
+                $namespaceManager = New-Object -TypeName 'System.Xml.XmlNamespaceManager' -ArgumentList $XmlDocument.NameTable
+                $namespaceManager.AddNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main')
+                $namespaceManager.AddNamespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
+                return , @($XmlDocument.SelectNodes($XPath, $namespaceManager))
+            }
         }
 
 
@@ -116,46 +113,42 @@ InModuleScope 'PScribo' {
 
     Describe 'Plugins\Word\Out-WordDocument (links)' {
         BeforeAll {
-            function Get-TestXmlNode
-                {
-                    param
-                    (
-                        [System.Xml.XmlDocument] $XmlDocument,
-                        [System.String] $XPath
-                    )
-                    $namespaceManager = New-Object -TypeName 'System.Xml.XmlNamespaceManager' -ArgumentList $XmlDocument.NameTable
-                    $namespaceManager.AddNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main')
-                    $namespaceManager.AddNamespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
-                    return ,@($XmlDocument.SelectNodes($XPath, $namespaceManager))
-                }
+            function Get-TestXmlNode {
+                param
+                (
+                    [System.Xml.XmlDocument] $XmlDocument,
+                    [System.String] $XPath
+                )
+                $namespaceManager = New-Object -TypeName 'System.Xml.XmlNamespaceManager' -ArgumentList $XmlDocument.NameTable
+                $namespaceManager.AddNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main')
+                $namespaceManager.AddNamespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
+                return , @($XmlDocument.SelectNodes($XPath, $namespaceManager))
+            }
         }
 
 
         BeforeAll {
-            $testPath = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath ('pscribo-links-{0}' -f [System.Guid]::NewGuid())
+            $testPath = Join-Path -Path $TestDrive -ChildPath ('pscribo-links-{0}' -f [System.Guid]::NewGuid())
             $null = New-Item -Path $testPath -ItemType Directory
         }
         
 
         BeforeAll {
-            function Get-DocxEntryXml
-        {
-            param ($Path, $EntryName)
-            Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
-            $zip = [System.IO.Compression.ZipFile]::OpenRead($Path)
-            try
-            {
-                $reader = New-Object -TypeName 'System.IO.StreamReader' -ArgumentList $zip.GetEntry($EntryName).Open()
-                $xml = New-Object -TypeName 'System.Xml.XmlDocument'
-                $xml.LoadXml($reader.ReadToEnd())
-                $reader.Dispose()
-                return $xml
+            function Get-DocxEntryXml {
+                param ($Path, $EntryName)
+                Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
+                $zip = [System.IO.Compression.ZipFile]::OpenRead($Path)
+                try {
+                    $reader = New-Object -TypeName 'System.IO.StreamReader' -ArgumentList $zip.GetEntry($EntryName).Open()
+                    $xml = New-Object -TypeName 'System.Xml.XmlDocument'
+                    $xml.LoadXml($reader.ReadToEnd())
+                    $reader.Dispose()
+                    return $xml
+                }
+                finally {
+                    $zip.Dispose()
+                }
             }
-            finally
-            {
-                $zip.Dispose()
-            }
-        }
         }
 
         It 'writes a well formed docx with an external hyperlink relationship' {
@@ -184,7 +177,5 @@ InModuleScope 'PScribo' {
 
             @($relsXml.DocumentElement.ChildNodes | Where-Object { $_.Type -match 'hyperlink' }).Count | Should -Be 0
         }
-
-        Remove-Item -Path $testPath -Recurse -Force -ErrorAction SilentlyContinue
     }
 }

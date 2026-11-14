@@ -1,5 +1,5 @@
 ﻿$here = Split-Path -Path $MyInvocation.MyCommand.Path -Parent;
-$testRoot  = Split-Path -Path $here -Parent;
+$testRoot = Split-Path -Path $here -Parent;
 $moduleRoot = Split-Path -Path $testRoot -Parent;
 Import-Module "$moduleRoot\PScribo.psm1" -Force;
 
@@ -23,32 +23,32 @@ InModuleScope 'PScribo' {
             Mock Out-TextDocument -Verifiable { }
             Mock Out-XmlDocument -Verifiable { }
 
-            $document | Export-Document -Format Text,XML
+            $document | Export-Document -Format Text, XML
 
             Should -InvokeVerifiable
         }
 
         It "throws on invalid qualified directory path" {
             { $document | Export-Document -Format Text -Path TestDrive:\ThisShouldHopefullyNotExist -ErrorAction SilentlyContinue } |
-                Should -Throw
+            Should -Throw
         }
 
         It "does not throw on valid qualified path" {
             { $document | Export-Document -Format Text -Path TestDrive:\ -ErrorAction SilentlyContinue } |
-                Should -Not -Throw
+            Should -Not -Throw
         }
 
         It "throws on invalid relative directory path" {
             { $document | Export-Document -Format Text -Path .\ThisShouldHopefullyNotExist -ErrorAction SilentlyContinue } |
-                Should -Throw
+            Should -Throw
         }
 
         It "does not throw on valid relative path" {
             { $document | Export-Document -Format Text -Path . -ErrorAction SilentlyContinue } |
-                Should -Not -Throw
+            Should -Not -Throw
         }
 
-        It "calls single output formatter" {
+        It "calls single output formatter with Document parameter" {
             Mock Out-TextDocument -Verifiable { }
 
             Export-Document -Document $document -Format Text
@@ -56,38 +56,43 @@ InModuleScope 'PScribo' {
             Should -InvokeVerifiable
         }
 
-        It "calls multiple output formatters" {
+        It "calls multiple output formatters with Document parameter" {
             Mock Out-TextDocument -Verifiable { }
             Mock Out-XmlDocument -Verifiable { }
 
-            Export-Document -Document $document -Format Text,XML
+            Export-Document -Document $document -Format Text, XML
 
             Should -InvokeVerifiable
         }
 
-        It "throws on invalid qualified directory path" {
+        It "throws on invalid qualified directory path with Document parameter" {
             { Export-Document -Document $document -Format Text -Path TestDrive:\ThisShouldHopefullyNotExist -ErrorAction SilentlyContinue } |
-                Should -Throw
+            Should -Throw
         }
 
-        It "does not throw on valid qualified path" {
+        It "does not throw on valid qualified path with Document parameter" {
             { Export-Document -Document $document -Format Text -Path TestDrive:\ -ErrorAction SilentlyContinue } |
-                Should -Not -Throw
+            Should -Not -Throw
         }
 
-        It "throws on invalid relative directory path" {
+        It "throws on invalid relative directory path with Document parameter" {
             { Export-Document -Document $document -Format Text -Path .\ThisShouldHopefullyNotExist -ErrorAction SilentlyContinue } |
-                Should -Throw
+            Should -Throw
         }
 
-        It "does not throw on valid relative path" {
+        It "does not throw on valid relative path with Document parameter" {
             { Export-Document -Document $document -Format Text -Path . -ErrorAction SilentlyContinue } |
-                Should -Not -Throw
+            Should -Not -Throw
         }
 
         It "throws on invalid chars in path" {
             { Export-Document -Document $document -Format Text -Path "C:\AppData\Loc$([char]0)al\" -ErrorAction SilentlyContinue } |
-                Should -Throw
+            Should -Throw
+        }
+        AfterAll {
+            if (Test-Path -Path ScaffoldDocument.txt) {
+                Remove-Item -Path 'ScaffoldDocument.txt' -Force -ErrorAction SilentlyContinue
+            }
         }
     }
 }

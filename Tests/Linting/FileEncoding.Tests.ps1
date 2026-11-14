@@ -40,7 +40,7 @@ function Get-TestFiles {
 $fileEncodingTestCases = @(
     foreach ($file in Get-TestFiles -Path $repoRoot -Exclude $excludedPaths) {
         @{
-            Path = $file.FullName
+            Path         = $file.FullName
             RelativePath = $file.FullName.Replace($repoRoot, '')
         }
     }

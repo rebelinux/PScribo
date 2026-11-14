@@ -6,7 +6,7 @@ $sourceFiles = @(Get-ChildItem -Path "$repoRoot\Src\*.ps*1" -Recurse -File)
 $testCases = @(
     foreach ($file in $sourceFiles) {
         @{
-            Path = $file.FullName
+            Path         = $file.FullName
             RelativePath = $file.FullName.Replace($repoRoot, '')
         }
     }

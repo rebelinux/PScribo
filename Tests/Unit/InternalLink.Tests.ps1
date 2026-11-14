@@ -125,6 +125,17 @@ InModuleScope 'PScribo' {
     }
 
     Describe 'Plugins\Word\Out-WordDocument (internal links)' {
+        $Platform = if ($PSVersionTable.PSEdition -eq 'Core') {
+            if ($IsLinux -or $IsMacOS) {
+                    'Unix'
+                }
+                else {
+                    'Windows'
+                }
+            }
+            else {
+                'Windows'
+        }
         BeforeAll {
             $wNs = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
             function Get-TestXmlNode {
@@ -137,10 +148,7 @@ InModuleScope 'PScribo' {
                     $namespaceManager.AddNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main')
                     return ,@($XmlDocument.SelectNodes($XPath, $namespaceManager))
             }
-        }  
-
-        BeforeAll {
-            $testPath = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath ('pscribo-ilinks-{0}' -f [System.Guid]::NewGuid())
+            $testPath = Join-Path -Path $TestDrive -ChildPath ('pscribo-ilinks-{0}' -f [System.Guid]::NewGuid())
             $null = New-Item -Path $testPath -ItemType Directory
         }    
 
@@ -195,7 +203,7 @@ InModuleScope 'PScribo' {
             }
         }
 
-        It 'opens in Word when Word is available' {
+        It 'opens in Word when Word is available' -Skip:$($Platform -eq 'Unix') {
             $word = $null
             try { $word = New-Object -ComObject 'Word.Application' -ErrorAction Stop } catch { }
             if ($null -eq $word)
@@ -219,8 +227,6 @@ InModuleScope 'PScribo' {
                 $word.Quit()
             }
         }
-
-        Remove-Item -Path $testPath -Recurse -Force -ErrorAction SilentlyContinue
     }
 
     Describe 'Plugins\Html\Internal links' {
