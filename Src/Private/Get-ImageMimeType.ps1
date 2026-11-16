@@ -13,18 +13,7 @@ function Get-ImageMimeType {
     )
     process {
         # Check if running on Unix and ImageSharp is available
-        $Platform = if ($PSVersionTable.PSEdition -eq 'Core') {
-            if ($IsLinux -or $IsMacOS) {
-                'Unix'
-            }
-            else {
-                'Windows'
-            }
-        }
-        else {
-            'Windows'
-        }
-        if ($Platform -eq 'Unix') {
+        if ($IsLinux -or $IsMacOS) {
             # Use SkiaSharp's encoded image format on Unix systems
             $codec = [SkiaSharp.SKCodec]::Create($Image.EncodedData)
             $format = $codec.EncodedFormat

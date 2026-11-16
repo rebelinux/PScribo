@@ -2,9 +2,9 @@ function ConvertTo-Image {
     <#
     .SYNOPSIS
         Creates an image from a byte[]
-#>
+    #>
     [CmdletBinding()]
-    [OutputType([System.Drawing.Image], [SkiaSharp.SKImage])]
+    [OutputType([System.Drawing.Image])]
     param
     (
         [Parameter(Mandatory, ValueFromPipeline)]
@@ -12,18 +12,7 @@ function ConvertTo-Image {
     )
     process {
         try {
-            $Plataform = if ($PSVersionTable.PSEdition -eq 'Core') {
-                if ($IsLinux -or $IsMacOS) {
-                    'Unix'
-                }
-                else {
-                    'Windows'
-                }
-            }
-            else {
-                'Windows'
-            }
-            if ($Plataform -eq 'Unix') {
+            if ($IsLinux -or $IsMacOS) {
                 $memoryStream = [System.IO.MemoryStream]::new($Bytes)
                 [SkiaSharp.SKImage] $image = [SkiaSharp.SKImage]::FromEncodedData($memoryStream)
                 Write-Output -InputObject $image

@@ -14,20 +14,27 @@ if (-not (Test-Path -Path 'Variable:\localized')) {
     Import-LocalizedData @importLocalizedDataParams -ErrorAction Stop
 }
 
-# Get assemblies files and import them
-$assemblyName = @(Get-ChildItem -Path ("$PSScriptRoot{0}Src{0}Bin{0}Assemblies{0}*.dll" -f [System.IO.Path]::DirectorySeparatorChar) -ErrorAction SilentlyContinue)
+if ($IsLinux -or $IsMacOS) {
+    try {
+        # Get assemblies files and import them
+        $assemblyName = @(Get-ChildItem -Path ("$PSScriptRoot{0}Src{0}Bin{0}Assemblies{0}*.dll" -f [System.IO.Path]::DirectorySeparatorChar) -ErrorAction SilentlyContinue)
 
-$loadedassemblies = [System.AppDomain]::CurrentDomain.GetAssemblies().ManifestModule.Name
+        $loadedassemblies = [System.AppDomain]::CurrentDomain.GetAssemblies().ManifestModule.Name
 
-foreach ($Assembly in $assemblyName) {
-    if ($Assembly.Name -notin $loadedassemblies) {
-        try {
-            Write-Verbose -Message "Loading assembly '$($Assembly.Name)'."
-            Add-Type -Path $Assembly.FullName -Verbose
+        foreach ($Assembly in $assemblyName) {
+            if ($Assembly.Name -notin $loadedassemblies) {
+                try {
+                    Write-Verbose -Message "Loading assembly '$($Assembly.Name)'."
+                    Add-Type -Path $Assembly.FullName -Verbose
+                }
+                catch {
+                    Write-Error -Message "Failed to add assembly $($Assembly.FullName): $_"
+                }
+            }
         }
-        catch {
-            Write-Error -Message "Failed to add assembly $($Assembly.FullName): $_"
-        }
+    }
+    catch {
+        Write-Warning ('Failed to load assemblies' -f $_.Exception.Message)
     }
 }
 
